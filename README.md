@@ -39,12 +39,13 @@ Node.js・PowerShellベースの作業用スクリプトを主に収録してい
 
 ## 📁 推奨ファイル構成（例）
 
-inuichiba-ffscripts/
-├── ffimages-upload-deploy.ps1
-├── ffworkers-upload.ps1
-├── ffworkers-set-secrets.ps1
-├── ...
-├── .gitignore
-└── README.md
+- inuichiba-ffscripts/
+ - ffimages-upload-deploy.ps1
+ - ffworkers-upload.ps1
+ - ffworkers-set-secrets.ps1
+ - :
+ - .gitignore
+ - README.md
+
 
 
