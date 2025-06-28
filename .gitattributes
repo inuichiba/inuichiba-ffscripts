@@ -1,0 +1,19 @@
+# 全体的に LF に統一（改行コードを強制）
+* text=auto eol=lf
+
+# スクリプト・設定系はテキストとして扱う（VSCodeの表示には影響なし）
+*.ps1     text
+*.js      text
+*.json    text
+*.md      text
+*.toml    text
+*.sh      text
+*.yml     text
+*.yaml    text
+
+# バイナリ系は誤認識させない
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.zip     binary

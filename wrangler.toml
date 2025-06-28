@@ -1,0 +1,5 @@
+# ffimages用手動デプロイのために作成
+
+name = "inuichiba-ffimages"
+compatibility_date = "2025-06-24"
+pages_build_output_dir = "D:/nasubi/inuichiba-ffimages/public"
