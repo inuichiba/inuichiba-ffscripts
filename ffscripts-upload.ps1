@@ -1,13 +1,13 @@
-﻿# ffworkers-upload.ps1
-# Cloudflare Workers 用リポジトリの git push を安全に実行する
+﻿# ffscripts-upload.ps1
+# ffscripts 用リポジトリの git push を安全に実行する
 # mainブランチのみ許可・競合チェック・内容確認タイムあり
 # 実行方法
 # cd D:\nasubi\inuichiba-ffscripts
-# .\ffworkers-upload.ps1
+# .\ffscripts-upload.ps1
 
 
 # ✅ 処理対象のパスを明示（ffscriptsからの相対パス）
-$targetRepo = "..\inuichiba-ffworkers"
+$targetRepo = "."
 
 # ✅ 最初に移動する（以後のgitはすべてこの中で行われる）
 Write-Host "`n📂 Git操作対象のディレクトリに移動中: $targetRepo" -ForegroundColor Cyan
@@ -21,8 +21,6 @@ Write-Host "📍 現在のブランチ: $branch" -ForegroundColor Yellow
 if ($branch -ne "main") {
     Write-Host "`n⚠️ 現在のブランチは 'main' ではありません → '$branch'" -ForegroundColor Red
     Write-Host "🚫 push を中止します。" -ForegroundColor Red
-    
-    # スクリプトがあるディレクトリに戻る
     Set-Location $PSScriptRoot
     exit 1
 }
@@ -51,11 +49,9 @@ if ($diffFiles) {
     }
 } else {
     Write-Host "⚠️ 差分はありません。" -ForegroundColor DarkGray
-    
+
     # ✅ 終了（何も変更がない場合）
     Write-Host "`n✅ 変更がないため、コミット・pushはスキップしました。" -ForegroundColor Green
-    
-    # スクリプトがあるディレクトリに戻る
     Set-Location $PSScriptRoot
     exit 0
 }
@@ -95,5 +91,4 @@ if ($confirm -eq "Y" -or $confirm -eq "y") {
     Write-Host "`n🚫 中止しました。安心してやり直してください。" -ForegroundColor Cyan
 }
 
-# スクリプトがあるディレクトリに戻る
 Set-Location $PSScriptRoot
