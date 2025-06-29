@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: 🔁 Ping Supabase tables
         run: |
+          set -x
           echo "🔁 Supabase 複数テーブルの ping を開始します..."
 
           # 現在の日時を取得（日本時間に変換）
@@ -29,8 +30,8 @@ jobs:
               echo "::warning file=ping-supabase.yml::[$table] のステータス: $status"
 
               # 🔔 Discord に1行で通知（日時含む）
-              curl -X POST -H "Content-Type: application/json" \
-                -d "{\"content\":\"⚠️ Supabase ping失敗 [$table] - ステータス: $status（$now JST）\"}" \
-                "${{ secrets.DISCORD_WEBHOOK_URL }}"
+              status=$(curl -L -s -o /dev/null -w "%{http_code}" \
+                -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+                "${{ secrets.SUPABASE_PROJECT_URL }}/rest/v1/$table")
             fi
           done
