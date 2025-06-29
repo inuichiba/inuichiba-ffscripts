@@ -1,27 +1,34 @@
 name: Supabase Ping
 
 on:
+  schedule:
+    - cron: '0 0 1,5,10,15,20,25,30 * *'  # JST 9:00
   workflow_dispatch:
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
     steps:
       - name: 🔁 Ping Supabase tables
         run: |
-          set -x
+          set -x  # コマンドのログを出す（デバッグ用）
+
           echo "🔁 Supabase 複数テーブルの ping を開始します..."
 
-          # 現在の日時を取得（日本時間に変換）
           now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
 
-          # テスト用に存在しないテーブル名で通知をテスト（本番では users_ffprod 等に戻す）
-          for table in users_invalid_table; do
+          for table in users_ffprod users_ffdev users_prod; do
             echo ""
             echo "🔸 $table を ping 中..."
-            status=$(curl -s -o /dev/null -w "%{http_code}" \
-              -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-              "${{ secrets.SUPABASE_PROJECT_URL }}/rest/v1/$table")
+
+            status=$(curl -L -s -o /dev/null -w "%{http_code}" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              "$SUPABASE_PROJECT_URL/rest/v1/$table")
 
             echo "✅ [$table] → ステータスコード: $status"
 
@@ -29,9 +36,5 @@ jobs:
               echo "⚠️ [$table] はステータス200ではありません！"
               echo "::warning file=ping-supabase.yml::[$table] のステータス: $status"
 
-              # 🔔 Discord に1行で通知（日時含む）
-              status=$(curl -L -s -o /dev/null -w "%{http_code}" \
-                -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-                "${{ secrets.SUPABASE_PROJECT_URL }}/rest/v1/$table")
-            fi
-          done
+              # 🔔 Discord に通知
+              curl -X POST -H "Content-Type: application/json"
