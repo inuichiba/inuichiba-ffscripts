@@ -1,6 +1,8 @@
 name: Supabase Ping
 
 on:
+  schedule:
+    - cron: '0 0 1,5,10,15,20,25,30 * *'
   workflow_dispatch:
 
 jobs:
@@ -9,7 +11,7 @@ jobs:
     env:
       SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      NOTIFY_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}  # Cloudflare対応用に名前汎用化
 
     steps:
       - name: 🔁 Ping Supabase tables
@@ -19,11 +21,14 @@ jobs:
 
           now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
 
-          for table in users_ffprod users_invalid_table; do
+          failures=""
+          for table in users_ffprod users_fake users_invalid_table; do
             echo ""
             echo "🔸 $table を ping 中..."
 
-            status=$(curl -L -s -o /dev/null -w "%{http_code}" -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_PROJECT_URL/rest/v1/$table")
+            status=$(curl -L -s -o /dev/null -w "%{http_code}" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              "$SUPABASE_PROJECT_URL/rest/v1/$table")
 
             echo "✅ [$table] → ステータスコード: $status"
 
@@ -31,8 +36,15 @@ jobs:
               echo "⚠️ [$table] はステータス200ではありません！"
               echo "::warning file=ping-supabase.yml::[$table] のステータス: $status"
 
-              curl -X POST -H "Content-Type: application/json" \
-                -d "{\"content\":\"⚠️ Supabase ping失敗 [$table] - ステータス: $status（$now JST）\"}" \
-                "$DISCORD_WEBHOOK_URL"
+              failures="$failures- $table → ステータス: $status\n"
             fi
           done
+
+          if [ -n "$failures" ]; then
+            payload="⚠️ Supabase ping失敗（$now JST）\n$failures"
+
+            # 通知送信
+            curl -X POST -H "Content-Type: application/json" \
+              -d "{\"content\":\"$(echo -e "$payload")\"}" \
+              "$NOTIFY_WEBHOOK_URL"
+          fi
