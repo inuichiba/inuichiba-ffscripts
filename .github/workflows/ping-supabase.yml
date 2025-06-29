@@ -33,18 +33,15 @@ jobs:
             echo "✅ [$table] → ステータスコード: $status"
 
             if [ "$status" != "200" ]; then
-              echo "⚠️ [$table] はステータス200ではありません！"
-              echo "::warning file=ping-supabase.yml::[$table] のステータス: $status"
-
-              failures="$failures- $table → ステータス: $status\n"
+              failures="${failures}- $table → ステータス: $status\\n"
             fi
           done
 
           if [ -n "$failures" ]; then
-            payload="⚠️ Supabase ping失敗（$now JST）\n$failures"
+            now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
+            payload="⚠️ Supabase ping失敗（$now JST）\\n$failures"
 
-            # 通知送信
-            curl -X POST -H "Content-Type: application/json" \
-              -d "{\"content\":\"$(echo -e "$payload")\"}" \
-              "$NOTIFY_WEBHOOK_URL"
+            curl  -X POST -H "Content-Type: application/json" \
+                  -d "{\"content\":\"$payload\"}" \
+                  "$NOTIFY_WEBHOOK_URL"
           fi
