@@ -11,7 +11,7 @@ jobs:
     env:
       SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      NOTIFY_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}  # Cloudflare対応用に名前汎用化
+      NOTIFY_WEBHOOK_URL: ${{ secrets.WORKERS_NOTIFY_URL }}  # Cloudflare対応用に名前汎用化
 
     steps:
       - name: 🔁 Ping Supabase tables
