@@ -1,4 +1,4 @@
-name: Supabase Ping
+name: Weekly Supabase Ping
 
 on:
   schedule:
@@ -17,12 +17,12 @@ jobs:
       - name: 🔁 Ping Supabase tables
         run: |
           set -x
-          echo "🔁 Supabase 複数テーブルの ping を開始します..."
+          echo "🔁 Supabase 複数テーブルの ping を開始します...($(date '+%Y-%m-%d %H:%M:%S'))"
 
           now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
 
           failures=""
-          for table in users_ffprod users_fake users_invalid_table; do
+          for table in users_ffprod users_ffdev users_prod users_fake; do
             echo ""
             echo "🔸 $table を ping 中..."
 
@@ -33,15 +33,21 @@ jobs:
             echo "✅ [$table] → ステータスコード: $status"
 
             if [ "$status" != "200" ]; then
-              failures="${failures}- $table → ステータス: $status\\n"
+              echo "⚠️ [$table] はステータス200ではありません！"
+              failures="${failures}- ${table} → $status\\n"
             fi
           done
 
-          if [ -n "$failures" ]; then
+
+          # 失敗があったら通知してexit 1(異常終了→GitHubが自動でメール通知)
+          [ -n "$failures" ] && {
             now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
             payload="⚠️ Supabase ping失敗（$now JST）\\n$failures"
-
-            curl  -X POST -H "Content-Type: application/json" \
-                  -d "{\"content\":\"$payload\"}" \
-                  "$NOTIFY_WEBHOOK_URL"
-          fi
+            curl -s -X POST -H "Content-Type: application/json" \
+                 -d "{\"content\":\"$payload\"}" \
+                 "$NOTIFY_WEBHOOK_URL"
+            exit 1
+          }
+          
+          echo "✅ すべてのテーブルに正常にアクセスできました。"
+          exit 0
