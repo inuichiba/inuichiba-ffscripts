@@ -22,7 +22,7 @@ jobs:
           now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
 
           failures=""
-          for table in users_ffprod users_ffdev users_prod users_fake; do
+          for table in users_ffprod users_ffdev users_prod; do
             echo ""
             echo "🔸 $table を ping 中..."
 
