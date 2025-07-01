@@ -1,7 +1,7 @@
 name: Weekly Supabase Ping
 # エラーがあったときだけGitHubからメール通知があるとともにDiscordに通知されます。
 # ✅ 通知先はDiscordに変更済（直接送信）
-# Secrets: DISCORD_WEBHOOK_URL を使用
+# GitHub Secrets: DISCORD_WEBHOOK_URL を使用
 # Cloudflare Workers経由の通知は廃止し、無料枠のリクエスト消費を完全にゼロに抑えています。
 # Cloudflare Workers経由に戻すなら、secrets：WORKERS_NOTIFY_URL にすればいいです(ただし課金枠に入ります)。
 
