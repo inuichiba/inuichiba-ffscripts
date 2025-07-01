@@ -21,7 +21,7 @@ Write-Host "📍 現在のブランチ: $branch" -ForegroundColor Yellow
 if ($branch -ne "main") {
     Write-Host "`n⚠️ 現在のブランチは 'main' ではありません → '$branch'" -ForegroundColor Red
     Write-Host "🚫 push を中止します。" -ForegroundColor Red
-    
+
     # スクリプトがあるディレクトリに戻る
     Set-Location $PSScriptRoot
     exit 1
@@ -51,17 +51,17 @@ if ($diffFiles) {
     }
 } else {
     Write-Host "⚠️ 差分はありません。" -ForegroundColor DarkGray
-    
+
     # ✅ 終了（何も変更がない場合）
     Write-Host "`n✅ 変更がないため、コミット・pushはスキップしました。" -ForegroundColor Green
-    
+
     # スクリプトがあるディレクトリに戻る
     Set-Location $PSScriptRoot
     exit 0
 }
 
 # ⏳ 内容確認タイム
-Write-Host "`n⏳ 60秒間、変更内容をご確認ください..." -ForegroundColor DarkGray
+Write-Host "`n⏳ 60秒間お待ちします... じっくり内容を確認してください。" -ForegroundColor DarkGray
 for ($i = 60; $i -ge 1; $i--) {
     Write-Host "⏳ 残り $i 秒..." -NoNewline
     Start-Sleep -Seconds 1
@@ -83,14 +83,23 @@ if ($confirm -eq "Y" -or $confirm -eq "y") {
     Write-Host "📝 git commit を実行中..." -ForegroundColor Cyan
     git commit -m $commitMessage
 
-    Write-Host "🚀 git push origin main を実行中..." -ForegroundColor Cyan
-    git push origin $branch
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "`n✅ push に成功しました！" -ForegroundColor Green
-    } else {
-        Write-Host "`n❌ push に失敗しました。" -ForegroundColor Red
+    Write-Host "`n🚀 GitリモートリポジトリへPushします（git push origin main）..." -ForegroundColor Cyan
+    # ✅ Pushコマンドを実行し、その出力をリアルタイム表示しつつログにも取る
+    $pushResult = @()
+    & git push origin main 2>&1 | ForEach-Object {
+        Write-Host $_
+        $pushResult += $_
     }
+
+    # ✅ Pushの成功判定 → "To " が含まれれば成功と判断
+    if ($pushResult -match "To ") {
+        Write-Host "✅ Push に成功しました！" -ForegroundColor Green
+    } else {
+        Write-Host "❌ Push に失敗しました！" -ForegroundColor Red
+        Write-Host "⚠️ 以下のエラーメッセージを確認してください：" -ForegroundColor Red
+        $pushResult | ForEach-Object { Write-Host $_ -ForegroundColor Red }
+    }
+
 } else {
     Write-Host "`n🚫 中止しました。安心してやり直してください。" -ForegroundColor Cyan
 }
