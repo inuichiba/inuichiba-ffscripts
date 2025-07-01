@@ -16,6 +16,8 @@
 # - Push時は色付きで進行状況を表示（安心の見える化）
 # - Push成功/失敗を色分け（成功=緑、失敗=赤で明確に）
 # - git status も表示して現状確認
+# - npx wrangler login 済であること
+#
 #
 # ✅ 実行方法：
 # cd D:\nasubi\inuichiba-ffscripts
@@ -48,10 +50,9 @@ for ($i = 60; $i -ge 1; $i--) {
 }
 
 # 画像に変更があるなら画像変更フラグを立てる(後でデプロイするため)
+$deployEnabled = $false  # デフォルトは変更しない（小心者モード）
 Write-Host "`n🖼 画像に変更はありますか？ (Y/N)" -ForegroundColor Yellow
 $confirm = Read-Host
-$deployEnabled = $false  # デフォルトは変更しない（小心者モード）
-
 if ($confirm -match '^[Yy]$') {
     $deployEnabled = $true
 }
