@@ -1,4 +1,9 @@
 name: Weekly Supabase Ping
+# エラーがあったときだけGitHubからメール通知があるとともにDiscordに通知されます。
+# ✅ 通知先はDiscordに変更済（直接送信）
+# Secrets: DISCORD_WEBHOOK_URL を使用
+# Cloudflare Workers経由の通知は廃止し、無料枠のリクエスト消費を完全にゼロに抑えています。
+# Cloudflare Workers経由に戻すなら、secrets：WORKERS_NOTIFY_URL にすればいいです(ただし課金枠に入ります)。
 
 on:
   schedule:
@@ -11,7 +16,7 @@ jobs:
     env:
       SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      NOTIFY_WEBHOOK_URL: ${{ secrets.WORKERS_NOTIFY_URL }}  # Cloudflare対応用に名前汎用化
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}  # Cloudflare対応はWORKERS_NOTIFY_URL
 
     steps:
       - name: 🔁 Ping Supabase tables
@@ -45,7 +50,7 @@ jobs:
             payload="⚠️ Supabase ping失敗（$now JST）\\n$failures"
             curl -s -X POST -H "Content-Type: application/json" \
                  -d "{\"content\":\"$payload\"}" \
-                 "$NOTIFY_WEBHOOK_URL"
+                 "$DISCORD_WEBHOOK_URL"
             exit 1
           }
           

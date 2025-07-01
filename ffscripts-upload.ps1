@@ -33,6 +33,7 @@ $remoteDiff = git log HEAD..origin/$branch --oneline
 if ($remoteDiff) {
     Write-Host "⚠️ ローカルとリモートに差分があります。" -ForegroundColor Yellow
     Write-Host "🛑 push すると競合の可能性があります。pull または rebase してから再実行してください。" -ForegroundColor Red
+    Set-Location $PSScriptRoot
     exit 1
 }
 
@@ -57,7 +58,7 @@ if ($diffFiles) {
 }
 
 # ⏳ 内容確認タイム
-Write-Host "`n⏳ 60秒間、変更内容をご確認ください..." -ForegroundColor DarkGray
+Write-Host "`n⏳ 60秒間、変更内容をゆっくりご確認ください..." -ForegroundColor DarkGray
 for ($i = 60; $i -ge 1; $i--) {
     Write-Host "⏳ 残り $i 秒..." -NoNewline
     Start-Sleep -Seconds 1
