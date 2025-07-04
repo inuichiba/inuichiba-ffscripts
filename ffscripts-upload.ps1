@@ -101,4 +101,12 @@ if ($confirm -eq "Y" -or $confirm -eq "y") {
     Write-Host "`n🚫 中止しました。安心してやり直してください。" -ForegroundColor Cyan
 }
 
+# --------------------------------------------
+# ✅ 最後に確認用のgitステータスを表示（安心させる）
+# --------------------------------------------
+Write-Host "`n📊 現在のGitステータス確認:" -ForegroundColor Cyan
+Set-Location $targetRepo
+git status
+
+# スクリプトがあるディレクトリに戻る
 Set-Location $PSScriptRoot
