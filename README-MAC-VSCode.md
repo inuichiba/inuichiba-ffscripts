@@ -6,7 +6,7 @@
 
 ---
 
-## 事前準備
+## 1. 事前準備
 
 ### VSCodeのインストール
 ```bash
@@ -25,7 +25,7 @@ Shell Command: Install 'code' command in PATH
 
 ---
 
-## 🔌 VSCode に入れるべき拡張機能（全プロジェクト共通）
+## 2. 🔌 VSCode に入れるべき拡張機能（全プロジェクト共通）
 ```bash
 # VSCode拡張を一括インストール（コマンドラインから一度に全行実行）
 code --install-extension dbaeumer.vscode-eslint \
@@ -41,32 +41,38 @@ code --install-extension dbaeumer.vscode-eslint \
      --install-extension EditorConfig.EditorConfig
 ```
 
-## 🛠️ 各拡張機能の役割（初心者向け）
-```sh
-種類	          拡張機能	                主な役割
-構文チェック	   ESLint / ShellCheck	    JSやshのミスを赤線で警告
-整形	          Prettier / EditorConfig	  コードスタイルを統一（自動整形）
-環境変数表示	   dotenv	.env              ファイルのハイライト
-Gitサポート	    GitLens	                  誰が・いつ・なにを変更したか見える
-パス補完	      Path Intellisense	        importやrequireの補完
-括弧可視化	    Bracket Colorizer	        括弧がカラフルに対応表示
-Markdown支援	  Markdown All in One	      README編集に便利
-ブラウザ確認	  open in browser	          HTMLやREADMEをすぐ確認
-スペルチェック	Code Spell Checker	      英単語の綴りミスを警告
+---
+
+## 3. 🛠️ 各拡張機能の役割（初心者向け）
+```text
+種類            拡張機能                  主な役割
+構文チェック     ESLint / ShellCheck      JSやshのミスを赤線で警告
+整形            Prettier / EditorConfig  コードスタイルを統一（自動整形）
+環境変数表示    dotenv.env                ファイルのハイライト
+Gitサポート     GitLens                   誰が・いつ・なにを変更したか見える
+パス補完        Path Intellisense         importやrequireの補完
+括弧可視化      Bracket Colorizer         括弧がカラフルに対応表示
+Markdown支援   Markdown All in One       README編集に便利
+ブラウザ確認    open in browser           HTMLやREADMEをすぐ確認
+スペルチェック  Code Spell Checker        英単語の綴りミスを警告
 ```
 
-## 🗂 プロジェクト構成（フォルダ概要）
-```sh
+---
+
+## 4. 🗂 プロジェクト構成（フォルダ概要）
+```text
   inuichiba-ffworkers/     # Cloudflare Workers の本体コード
   inuichiba-ffscripts/     # デプロイやバッチなどの管理スクリプト
   inuichiba-ffimages/      # Flex Messageやリッチメニュー画像のホスティング
 ```
 - inuichiba-ffimages(極力他のファイルを含めないポリシーのため)以外は、.editorconfig によってインデント・改行コードなどが強制されます。
 
-## 📏 コードスタイルの強制 .editorconfig
+---
+
+## 5. 📏 コードスタイルの強制 .editorconfig
 - プロジェクトルートに .editorconfig が存在しています。
 
-```sh
+```text
 root = true
 
 [*]
@@ -100,10 +106,13 @@ indent_style = space
 indent_size = 2
 ```
 
-## ✅ 守るべきこと
+---
+
+## 6. ✅ 守るべきこと
 
 - インデントは 半角スペース2個
 - 改行コードは LF（Mac/Unix形式）
 - ファイル末尾は 空行あり
 - 不要な空白は 自動で削除
 - VSCode + EditorConfig拡張があれば、保存時に自動で修正されます。
+- UTF-8(BOMなし)形式厳守 … 自動で修正されないので注意
