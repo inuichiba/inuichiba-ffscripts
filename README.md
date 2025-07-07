@@ -7,9 +7,9 @@ Node.js・PowerShellベースの作業用スクリプトを主に収録してい
 
 ## ✅ 命名規則と用途
 
-- `ffimages-*`：画像圧縮やアップロードなど、Cloudflare Pages に関するバッチ処理
+- `ffimages-*` ：Cloudflare Pages（画像のGit pushやデプロイなど）に関するバッチ処理
 - `ffworkers-*`：Cloudflare Workers 環境での初期化・デプロイ・Secrets登録などの支援ツール
-- 将来的に `ffmain-*`（Firebase Functions）などが追加される可能性もあります
+- `ffscripts-*`：上記に関するスクリプトたちをGit pushして管理
 - `wrangler.toml` は `Cloudflare Pages` 向け構成ファイルです(`inuichiba-ffimages`には極力gitと画像以外のファイルを含めたくなかったための措置)。
 
 ---
@@ -32,7 +32,9 @@ Node.js・PowerShellベースの作業用スクリプトを主に収録してい
 
 ## 🐾 管理者メモ
 
-- スクリプトは `D:\nasubi\inuichiba-ffscripts` で管理
+- スクリプトは以下で管理
+    - `Windowds` の場合 `D:\nasubi\inuichiba-ffscripts` 
+    - `Mac/Unix` の場合 `/Users/yourname/projectname/inuichiba-ffscripts/sh/`
 - 各スクリプトは外部リポジトリの `../` 相対パスで呼び出されることを想定
 - 不用意なディレクトリ移動は **スクリプト全体のリンク切れを引き起こす** ため慎重に
 

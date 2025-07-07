@@ -28,6 +28,8 @@
 # 🔸補足:
 #   - 同名キーが既に存在していた場合は **警告なしで上書き** されます。
 #   - スクリプト終了後は自動的に呼び出し元のディレクトリへ戻ります。
+#   - .env.secrets.ff*.txt の値はすべて Secretsとして登録します。
+#     Variables(プレーンテキスト) として登録したい場合はGUI(Workers & Pages)を使用してください。
 #
 # -----------------------------------------------
 #>
@@ -58,7 +60,7 @@ Write-Host "`n🔐 Secretsファイルを読み込み中:"
 # === 存在確認 ===
 if (-not (Test-Path $secretsFilePath)) {
   Write-Host "❌ Secretsファイルが存在しません: $secretsFilePath" -ForegroundColor Red
-  
+
   # 元のディレクトリ(ffscripts)へ戻る
   Set-Location $PSScriptRoot
   exit 1
@@ -91,7 +93,7 @@ $content = ($content -replace '[\x00-\x08\x0B\x0C\x0E-\x1F\u3000]', '')
 $npxPath = Get-Command npx -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
 if (-not $npxPath) {
   Write-Host "❌ 'npx' コマンドが見つかりません。Node.js/npm がインストールされていないか、PATH が通っていません。" -ForegroundColor Red
-  
+
   # 元のディレクトリ(ffscripts)へ戻る
   Set-Location $PSScriptRoot
   exit 1
@@ -110,26 +112,26 @@ foreach ($line in $lines) {
 
   # 空行またはスペースのみの行をスキップ(ログ出力なし)
   if ([string]::IsNullOrWhiteSpace($line)) {
-    continue  
+    continue
   }
-  
+
   $trimmed = $line.Trim()
-  
+
   # コメント行をスキップ(ログ出力なし)
   if ($trimmed.StartsWith("#")) {
     continue
   }
-  
+
   # ✅ 厳格に key=value 形式（スペース無し、=が1つ）をチェック
   $pair = $line -split "=", 2
-  
-  if ($pair.Count -ne 2 -or 
-      [string]::IsNullOrWhiteSpace($pair[0]) -or 
+
+  if ($pair.Count -ne 2 -or
+      [string]::IsNullOrWhiteSpace($pair[0]) -or
       [string]::IsNullOrWhiteSpace($pair[1])) {
     Write-Host "⚠️ 無効な形式のためスキップ: $line" -ForegroundColor Yellow
     continue
-  }  
-  
+  }
+
   $key   = $pair[0].Trim()
   $value = $pair[1].Trim()
 

@@ -22,10 +22,22 @@
 
 // ✅ 前提の前提(Node.jsのバージョンを確認：最低14以上、できれば16以上)
 // node -v
+//
 // ✅ 前提(sharpをインストールする)
 // npm install sharp
+//
 // 確認方法
 // node -e "require('sharp'); console.log('✅ sharp 読み込み成功！')"
+//
+// 💻 macOSユーザー向け補足
+// sharpのインストールにはXcodeのCommand Line Toolsが必要な場合があります:
+// xcode-select --install
+//
+// ※sharp の動作はMac/Linuxでも基本的に同じです。
+// ただし libvips が正しく組み込まれていないと失敗することがあります。
+// その場合、エラーメッセージが出るので以下で対応できます。
+// npm rebuild sharp
+
 
 // ✅ 実行方法
 // node ffimages-compress-images.js	       → 通常モード（normal）で変換
@@ -73,7 +85,10 @@ const yyyymmddhhmmss =
   String(now.getMinutes()).padStart(2, '0') +
   String(now.getSeconds()).padStart(2, '0');
 
-// 出力先は D:\nasubi\scripts\ffimages-compress\output\20250515-142359\ などになる
+// 出力先は以下のようになる
+// ・Windows の場合   D:\nasubi\ffimages-compress\output\20250515-142359\ など
+// ・Mac/Linax の場合 /Users/yourname/projectname/ffimages-compress/output/20250515-142359/ など
+//   → path.join(__dirname, ...) で OSに応じて自動構成されるので変更不要です。
 const outputDir = path.join(__dirname, "ffimages-compress", "output", yyyymmddhhmmss);
 
 // 🌟 入力ディレクトリ存在確認
@@ -113,7 +128,7 @@ fs.readdir(inputDir, (err, files) => {
     const outputFileName = mode === "detail" ? `${baseName}_detail.jpg` : `${baseName}.jpg`;
     // 出力パス
     const outputPath = path.join(outputDir, outputFileName);
-    
+
     // 🌟 ここで拡張子判定
     const ext = path.extname(file).toLowerCase();
     const isPng = ext === ".png";
@@ -121,7 +136,7 @@ fs.readdir(inputDir, (err, files) => {
 
     // 🌟 jpegもpngもsharpで読み込んでオブジェクト作成 (jpgmopngも共通で読めるように)
     const baseSharp = sharp(inputPath);
-    
+
     let processingNote = "";
 
     // 🌟 モード別設定 (normal or detail)
@@ -136,7 +151,7 @@ fs.readdir(inputDir, (err, files) => {
         if (inputSizeMB > 1) {
           processingNote = `PNG(大容量 ${inputSizeMB.toFixed(2)}MB) → 安全＋強圧縮(65/4:4:4)`;
           baseSharp
-				    // 画像のファイルサイズを合わせるときに使うと良い	
+				    // 画像のファイルサイズを合わせるときに使うと良い
 				    // .resize({ width: 1200, withoutEnlargement: true })  // ★ 横幅を強制的に制限（1920→1200など）
             .resize({ fit: "inside", withoutEnlargement: true })  // オリジナルサイズ以下でリサイズ
             .jpeg({
@@ -177,8 +192,8 @@ fs.readdir(inputDir, (err, files) => {
       // 🌟 detailモードは高品質(90/4:4:4)、pngもjpegも同じ
       if (isPng) {
         baseSharp.flatten({ background: { r: 255, g: 255, b: 255 } });
-      }      
-      
+      }
+
       processingNote = `${isPng ? "PNG" : isJpeg ? "JPEG" : "Unknown"} → 高画質(90/4:4:4/detailモード)`;
       baseSharp
         .resize({ width: 1920, withoutEnlargement: true }) // 横幅1920px固定
