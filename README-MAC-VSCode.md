@@ -6,8 +6,28 @@
 
 ---
 
+## 事前準備
+
+### VSCodeのインストール
+```bash
+brew install --cask visual-studio-code 
+```
+
+### code コマンドが有効か確認
+```bash
+which code
+```
+-  /usr/local/bin/code のように出ればOK。
+- 出ない場合は VSCode の「コマンドパレット」で次のように入力：
+```bash
+Shell Command: Install 'code' command in PATH
+```
+
+---
+
 ## 🔌 VSCode に入れるべき拡張機能（全プロジェクト共通）
-<pre>
+```bash
+# VSCode拡張を一括インストール（コマンドラインから一度に全行実行）
 code --install-extension dbaeumer.vscode-eslint \
      --install-extension esbenp.prettier-vscode \
      --install-extension timonwong.shellcheck \
@@ -19,10 +39,10 @@ code --install-extension dbaeumer.vscode-eslint \
      --install-extension yzhang.markdown-all-in-one \
      --install-extension techer.open-in-browser \
      --install-extension EditorConfig.EditorConfig
-</pre>
+```
 
 ## 🛠️ 各拡張機能の役割（初心者向け）
-<pre>
+```sh
 種類	          拡張機能	                主な役割
 構文チェック	   ESLint / ShellCheck	    JSやshのミスを赤線で警告
 整形	          Prettier / EditorConfig	  コードスタイルを統一（自動整形）
@@ -33,21 +53,20 @@ Gitサポート	    GitLens	                  誰が・いつ・なにを変更�
 Markdown支援	  Markdown All in One	      README編集に便利
 ブラウザ確認	  open in browser	          HTMLやREADMEをすぐ確認
 スペルチェック	Code Spell Checker	      英単語の綴りミスを警告
-</pre>
+```
 
 ## 🗂 プロジェクト構成（フォルダ概要）
-<pre>
+```sh
   inuichiba-ffworkers/     # Cloudflare Workers の本体コード
   inuichiba-ffscripts/     # デプロイやバッチなどの管理スクリプト
   inuichiba-ffimages/      # Flex Messageやリッチメニュー画像のホスティング
-
-※inuichiba-ffimages(極力他のファイルを含めないポリシーのため)以外は、.editorconfig によってインデント・改行コードなどが強制されます。
-</pre>
+```
+- inuichiba-ffimages(極力他のファイルを含めないポリシーのため)以外は、.editorconfig によってインデント・改行コードなどが強制されます。
 
 ## 📏 コードスタイルの強制 .editorconfig
-<pre>
-プロジェクトルートに .editorconfig が存在しています。
+- プロジェクトルートに .editorconfig が存在しています。
 
+```sh
 root = true
 
 [*]
@@ -79,14 +98,12 @@ indent_size = 2
 trim_trailing_whitespace = false
 indent_style = space
 indent_size = 2
+```
 
-✅ 守るべきこと
-</pre>
+## ✅ 守るべきこと
+
 - インデントは 半角スペース2個
 - 改行コードは LF（Mac/Unix形式）
 - ファイル末尾は 空行あり
 - 不要な空白は 自動で削除
 - VSCode + EditorConfig拡張があれば、保存時に自動で修正されます。
-
-
-
