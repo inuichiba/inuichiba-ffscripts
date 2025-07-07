@@ -40,10 +40,10 @@ Node.js・PowerShellベースの作業用スクリプトを主に収録してい
 
 ---
 
-## 📁 推奨ファイル構成（例）
-<pre>
+## 📁 推奨ファイル構成
+```text
 inuichiba-ffscripts/
-  ffimages-compress-images.js # ping(jpeg)をファイルサイズを圧縮したjpegに変換
+  ffimages-compress-images.js # ping(jpeg)をファイルサイズを圧縮したjpegに変換(Windows/Mac両方使用可能)
   ffimages-compress           # 変換ファイルのI/Oが入るディレクトリ
      input                    # 圧縮したいファイルを入れる
      output                   # 日付時間のディレクトリに変換後のファイルが格納される
@@ -53,6 +53,9 @@ inuichiba-ffscripts/
   ffworkers-upload.ps1        # inuichiba-ffworkers をGit登録する(デプロイは手動で実施)
   ffworkers-set-secrets.ps1   # inuichiba-ffworkers の Secret を .env.secrets.ff*.txt を元に一括登録
      :
+  sh                          # .ps1スクリプトをMac/unix向け(.sh)に反映したスクリプト群
+     ffworkers-upload.sh      # inuichiba-ffworkers をGit登録する(デプロイは手動で実施)
+      :
   .github
      workflows
        ping-supabase.yml      # Supabaseに5日に1回自動でpingするyaml。エラー時メールとDiscordに通知
@@ -63,8 +66,10 @@ inuichiba-ffscripts/
      :
   wrangler.toml               # Cloudflare Pages(inuichiba-ffimages) 向け構成ファイル
   README.md                   # このファイル(このディレクトリの説明を書いたファイル)
+  README-MAC.md               # MACユーザ向けに初期導入するための手引書
+  README-MAC-VSCode.md        # MAcユーザ向けにVSCodeの拡張インストールをするための手引書
 
-  ※yaml … Git Push すると GitHub の Actions へ登録され、そこで(自動/手動)実行するファイル
-</pre> 
+  ※yaml … Git Push すると GitHub の Actions へ登録され、そこで(自動/手動)実行するファイルのこと
+``` 
 
 
