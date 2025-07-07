@@ -336,7 +336,7 @@ inuichiba-ffworkers/
 ### C. ⚙️ Wrangler 設定ファイル（wrangler.toml）
 
 ### cloudflare Workers
-```sh
+```text
 # 📛 ベース名（この name は fallback 用。各環境で上書きされます）
 name = "inuichiba-ffworkers"
 
@@ -437,14 +437,14 @@ npx wrangler deploy --env ffprod
 
 ### G. 📝 その他よく使うコマンド
 ```text
-コマンド	                         説明
-wrangler init	                    # 新規プロジェクト作成
-wrangler dev	                    # ローカル実行
-wrangler deploy	                  # デプロイ（デフォルト環境）
-wrangler deploy --env ffdev	      # 開発環境にデプロイ
-wrangler secret put <KEY>	        # Secret 登録
-wrangler secret list --env ffdev	# Secret 一覧表示
-wrangler tail --env ffdev	        # ログのリアルタイム表示
+コマンド                           説明
+wrangler init                     # 新規プロジェクト作成
+wrangler dev                      # ローカル実行
+wrangler deploy                   # デプロイ（デフォルト環境）
+wrangler deploy --env ffdev       # 開発環境にデプロイ
+wrangler secret put <KEY>         # Secret 登録
+wrangler secret list --env ffdev  # Secret 一覧表示
+wrangler tail --env ffdev         # ログのリアルタイム表示
 ```
 
 ---
@@ -477,11 +477,11 @@ brew install --cask visual-studio-code
 
 ## 8. 🏗️ 主に修正するファイル
 ```text
-ファイルパス	                                               内容
-inuichiba-ffworkers/src/handlers/event.js	                  # LINEメッセージの応答処理ロジック
-inuichiba-ffworkers/src/richmenu-manager/richMenuHandler.js	# リッチメニューの構成や画像の設定
-inuichiba-ffworkers/src/richmenu-manager/data/messages.js	  # 表示するメッセージ定義やpostbackの定義
-inuichiba-ffworkers/src/lib/env.js	                        # 環境変数やSecretsの取得（参照/呼び出しのみで極力修正しない事）
+ファイルパス                                                 内容
+inuichiba-ffworkers/src/handlers/event.js                   # LINEメッセージの応答処理ロジック
+inuichiba-ffworkers/src/richmenu-manager/richMenuHandler.js # リッチメニューの構成や画像の設定
+inuichiba-ffworkers/src/richmenu-manager/data/messages.js   # 表示するメッセージ定義やpostbackの定義
+inuichiba-ffworkers/src/lib/env.js                          # 環境変数やSecretsの取得（参照/呼び出しのみで極力修正しない事）
 ```
 
 ---
