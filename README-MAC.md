@@ -280,7 +280,7 @@ projectname/
 │   ├── README-MAC.md（←このファイル）
 │   ├── README-MAC-VSCode.md（VSCodeで最低限入れておくべき拡張ファイルの一覧）
 │   └── git-pull-main.ps1 などのWindows向けスクリプト
-│       └── sh など
+│       └── sh
 │           └── git-pull-main.sh などのMac向けスクリプト
 │
 └── inuichiba-ffworkers/

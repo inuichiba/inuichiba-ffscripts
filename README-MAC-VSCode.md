@@ -35,7 +35,6 @@ code --install-extension dbaeumer.vscode-eslint \
      --install-extension eamodio.gitlens \
      --install-extension christian-kohler.path-intellisense \
      --install-extension CoenraadS.bracket-pair-colorizer-2 \
-     --install-extension streetsidesoftware.code-spell-checker \
      --install-extension yzhang.markdown-all-in-one \
      --install-extension techer.open-in-browser \
      --install-extension EditorConfig.EditorConfig
@@ -54,7 +53,6 @@ Gitサポート     GitLens                   誰が・いつ・なにを変更�
 括弧可視化      Bracket Colorizer         括弧がカラフルに対応表示
 Markdown支援   Markdown All in One       README編集に便利
 ブラウザ確認    open in browser           HTMLやREADMEをすぐ確認
-スペルチェック  Code Spell Checker        英単語の綴りミスを警告
 ```
 
 ---
