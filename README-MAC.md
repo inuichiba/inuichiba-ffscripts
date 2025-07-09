@@ -355,6 +355,10 @@ account_id = "YOUR_ACCOUNT_ID"
 # 独自ドメインがないときは true
 workers_dev = true
 
+# Wrangler 4.20以降では、Node.js 標準モジュール（たとえば os）を
+# 使う場合は明示的に互換設定が必要
+compatibility_flags = ["nodejs_compat"]
+
 # 本番環境用KV(Supabase連打スキップ機能)
 [[kv_namespaces]]
 binding = "users_kv"

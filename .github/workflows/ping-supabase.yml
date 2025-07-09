@@ -1,4 +1,4 @@
-name: Weekly Supabase Ping
+name: Weekly Supabase's user-tables Ping
 # エラーがあったときだけGitHubからメール通知があるとともにDiscordに通知されます。
 # ✅ 通知先はDiscordに変更済（直接送信）
 # GitHub Secrets: DISCORD_WEBHOOK_URL を使用
@@ -7,15 +7,15 @@ name: Weekly Supabase Ping
 
 on:
   schedule:
-    - cron: '0 0 1,5,10,15,20,25,30 * *'
-  workflow_dispatch:
+    - cron: '0 3 1,5,10,15,20,25,30 * *'  # JST12:00（UTC+9）= UTC3:00
+  workflow_dispatch:                      # 手動実行も可
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
-      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}  # Cloudflare対応はWORKERS_NOTIFY_URL
 
     steps:
@@ -32,8 +32,8 @@ jobs:
             echo "🔸 $table を ping 中..."
 
             status=$(curl -L -s -o /dev/null -w "%{http_code}" \
-              -H "apikey: $SUPABASE_ANON_KEY" \
-              "$SUPABASE_PROJECT_URL/rest/v1/$table")
+              -H "apikey: $SUPABASE_KEY" \
+              "$SUPABASE_URL/rest/v1/$table")
 
             echo "✅ [$table] → ステータスコード: $status"
 
@@ -53,6 +53,6 @@ jobs:
                  "$DISCORD_WEBHOOK_URL"
             exit 1
           }
-          
+
           echo "✅ すべてのテーブルに正常にアクセスできました。"
           exit 0

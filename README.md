@@ -40,36 +40,68 @@ Node.js・PowerShellベースの作業用スクリプトを主に収録してい
 
 ---
 
-## 📁 推奨ファイル構成
-```text
+## 📁 ファイル構成
+```sh
 inuichiba-ffscripts/
-  ffimages-compress-images.js # ping(jpeg)をファイルサイズを圧縮したjpegに変換(Windows/Mac両方使用可能)
-  ffimages-compress           # 変換ファイルのI/Oが入るディレクトリ
+  compress-images.js          # png(jpg)をファイルサイズを圧縮したjpgに変換し、base64のjsにも変換(Windows/Mac使用可能)
+  compress                    # 変換ファイルのI/Oが入るディレクトリ
      input                    # 圧縮したいファイルを入れる
      output                   # 日付時間のディレクトリに変換後のファイルが格納される
-     ： 
+     base64                   # 変換後のファイルが格納される(現在リッチメニュー機能でしか使っていない)
   ffimages-upload-deploy.ps1  # inuichiba-ffimages をGit登録し、画像ファイルをデプロイ(再キャッシュ)
   ffscripts-upload.ps1        # inuichiba-ffscripts をGit登録する
   ffworkers-upload.ps1        # inuichiba-ffworkers をGit登録する(デプロイは手動で実施)
-  ffworkers-set-secrets.ps1   # inuichiba-ffworkers の Secret を .env.secrets.ff*.txt を元に一括登録
+  git-pull-main.ps1           # 3つすべてにおいて、Git pull を実行する
+  ffworkers-run-richmenu.ps1  # inuichiba-ffworkers でリッチメニュー作成を行う(ローカルで行われる)
+  ffworkers-set-secrets.ps1   # inuichiba-ffworkers の Secrets を .env.secrets.ff*.txt を元に一括登録
      :
   sh                          # .ps1スクリプトをMac/unix向け(.sh)に反映したスクリプト群
      ffworkers-upload.sh      # inuichiba-ffworkers をGit登録する(デプロイは手動で実施)
       :
   .github
      workflows
-       ping-supabase.yml      # Supabaseに5日に1回自動でpingするyaml。エラー時メールとDiscordに通知
+       ping-supabase.yml      # Supabaseが稼働し続けることを確認するための定期Ping処理
+     :                        # 5日ごとに実行され、失敗時は Discord またはメールに通知される  
      :
   .git                        # Git が使用するファイル群一式 
-  .gitignore                  # Git に含めないファイルを記述(秘匿ファイルやログなど不必要なファイル) 
+  .gitignore                  # Git に含めないファイルを記述(秘匿ファイルやログなど開発に不要なファイルをGitに含めないようにする設定ファイル) 
   .gitattributes              # このリポジトリ内のファイルを、Git がどう扱うかを指定する設定ファイル 
      :
+  package.json                # 依存パッケージ・スクリプト・メタ情報を管理  
   wrangler.toml               # Cloudflare Pages(inuichiba-ffimages) 向け構成ファイル
   README.md                   # このファイル(このディレクトリの説明を書いたファイル)
   README-MAC.md               # MACユーザ向けに初期導入するための手引書
   README-MAC-VSCode.md        # MAcユーザ向けにVSCodeの拡張インストールをするための手引書
-
-  ※yaml … Git Push すると GitHub の Actions へ登録され、そこで(自動/手動)実行するファイルのこと
 ``` 
 
+### 主要なファイル構成の追加説明
 
+### 1. package.json（依存管理・スクリプト）
+- このプロジェクトの **依存パッケージ・スクリプト・メタ情報** を管理。
+- 主要スクリプト（例）:
+    - `start` や `deploy`、カスタムスクリプトを定義可能。
+- 依存パッケージには以下が含まれることがあります：
+    - `@supabase/supabase-js`
+    - `node-fetch`（必要に応じて）
+    - `@cloudflare/kv-asset-handler` など
+- `type: "module"` が指定されているため、**ESM形式で記述されています**。
+
+
+### 2. ping-supabase.yml（GitHub Actions）
+- yamlとは、Git Push すると GitHub の Actions へ登録され、そこで(自動/手動)実行するファイルのこと。
+- Supabase が稼働し続けることを確認するための **定期Ping処理**。
+- 毎月 `1日, 5日, 10日, 15日, 20日, 25日, 30日` に実行。
+- Cloudflare Workers の `/ping` エンドポイントを呼び出します。
+- 失敗時は Discord またはログに通知されます（処理は `ping-supabase.sh`）。
+- Supabase はテーブルに7日間アクセスがないとメールで警告を送り、1ヶ月半でそのテーブルを削除します。この定期pingは削除されないための方策です。
+
+
+### 3. .gitignore（Git管理除外ファイル）
+- `node_modules/` や `.env*` など、**開発に不要または秘匿ファイルをGitに含めないようにする設定ファイル**。
+- 秘匿ファイルは `inuichiba-ffworkers/scr/secrets/` 配下にしか今はない。
+- GitHubにいたらないものを登録しないよう、ファイルの中身には十分な配慮が必要。
+- 主な除外対象：
+    - `node_modules/`（依存パッケージ）
+    - `.env.secrets.*.txt`（Secretsファイル）
+    - `.backup/`（バックアップ系ログや設定）
+    - `*.log`（ログファイル）
