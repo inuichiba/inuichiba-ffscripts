@@ -11,9 +11,12 @@
 *.yml     text
 *.yaml    text
 
-# バイナリ系は誤認識させない
-*.png     binary
+# 画像ファイルはすべてバイナリ扱い（破損・誤差分防止）
 *.jpg     binary
 *.jpeg    binary
+*.png     binary
 *.gif     binary
+*.svg     binary
+*.webp    binary
+*.ico     binary
 *.zip     binary

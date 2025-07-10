@@ -38,13 +38,66 @@ CloudflareやGitHub操作               ❌ 不要（ログイン済みなら）
 
 ---
 
-## 2. GitHubからクローン（あなたの権限があるリポジトリURLに読み替えてください）
+## 2. # 📦 開発環境セットアップ手順（概要。詳細は後述だが熟読のこと）
+
+### A. ✅ 前提条件
+
+> この手順は **公式リポジトリ（inuichiba）から直接 clone する前提**です。  
+> **絶対に GitHub 上で「Fork」ボタンを押さずに進めてください。**
+
+---
+
+### B. Homebrew で必要なツールをインストール
+
+```bash
+brew install git
+brew install node
+npm install -g wrangler
+```
+
+### C. リポジトリを clone（公式から直接）
+
+> 下記の3つを順に clone してください。別々のフォルダに配置されますが、それでOKです。
 
 ```bash
 git clone https://github.com/inuichiba/inuichiba-ffworkers.git
 git clone https://github.com/inuichiba/inuichiba-ffscripts.git
 git clone https://github.com/inuichiba/inuichiba-ffimages.git
 ```
+- すべてのリモート（origin）は inuichiba 所有の本番リポジトリになります。
+
+### D. Workersプロジェクトに移動してログイン
+
+```bash
+cd inuichiba-ffworkers
+wrangler login
+```
+
+### E. ✅ 補足：間違った clone を防ぐために
+
+- 絶対に GitHub 上で「Fork」ボタンを押さないこと
+- clone コマンドは必ず https://github.com/inuichiba/... を使うこと
+- git remote -v で origin のURLを確認可能
+
+### F. 🔍 git remote URL の確認コマンド（間違っていたら修正）
+
+```bash
+git remote -v
+```
+
+期待される出力（例）：
+
+```bash
+origin  https://github.com/inuichiba/inuichiba-ffworkers.git (fetch)
+origin  https://github.com/inuichiba/inuichiba-ffworkers.git (push)
+```
+
+### G. ✅ 問題があったときの対処（origin のURL修正）
+
+```bash
+git remote set-url origin https://github.com/inuichiba/inuichiba-ffworkers.git
+```
+- ffscripts や ffimages も同様です。
 
 ---
 

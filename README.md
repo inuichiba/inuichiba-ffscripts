@@ -66,6 +66,7 @@ inuichiba-ffscripts/
   .git                        # Git が使用するファイル群一式 
   .gitignore                  # Git に含めないファイルを記述(秘匿ファイルやログなど開発に不要なファイルをGitに含めないようにする設定ファイル) 
   .gitattributes              # このリポジトリ内のファイルを、Git がどう扱うかを指定する設定ファイル 
+  .editorconfig               # VSCodeでどう動くかを定義した設定ファイル
      :
   package.json                # 依存パッケージ・スクリプト・メタ情報を管理  
   wrangler.toml               # Cloudflare Pages(inuichiba-ffimages) 向け構成ファイル
@@ -81,7 +82,6 @@ inuichiba-ffscripts/
 - 主要スクリプト（例）:
     - `start` や `deploy`、カスタムスクリプトを定義可能。
 - 依存パッケージには以下が含まれることがあります：
-    - `@supabase/supabase-js`
     - `node-fetch`（必要に応じて）
     - `@cloudflare/kv-asset-handler` など
 - `type: "module"` が指定されているため、**ESM形式で記述されています**。
@@ -92,7 +92,7 @@ inuichiba-ffscripts/
 - Supabase が稼働し続けることを確認するための **定期Ping処理**。
 - 毎月 `1日, 5日, 10日, 15日, 20日, 25日, 30日` に実行。
 - Cloudflare Workers の `/ping` エンドポイントを呼び出します。
-- 失敗時は Discord またはログに通知されます（処理は `ping-supabase.sh`）。
+- 失敗時は Discord およびメールに通知され、内容がログに残ります。
 - Supabase はテーブルに7日間アクセスがないとメールで警告を送り、1ヶ月半でそのテーブルを削除します。この定期pingは削除されないための方策です。
 
 
@@ -102,6 +102,6 @@ inuichiba-ffscripts/
 - GitHubにいたらないものを登録しないよう、ファイルの中身には十分な配慮が必要。
 - 主な除外対象：
     - `node_modules/`（依存パッケージ）
-    - `.env.secrets.*.txt`（Secretsファイル）
-    - `.backup/`（バックアップ系ログや設定）
     - `*.log`（ログファイル）
+    - `src/secrets/`（秘匿 `Secrets` ファイル） … inuichiba-ffworkersにのみある
+    - `.backup/`（バックアップ系ログや設定） … inuichiba-ffworkersにのみある
