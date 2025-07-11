@@ -9,10 +9,11 @@
 ## 1. 事前準備
 
 ### VSCodeのインストール
+- インストール先は `inuichiba-ffworkers`
 ```bash
 brew install --cask visual-studio-code 
 ```
-
+ 
 ### code コマンドが有効か確認
 ```bash
 which code

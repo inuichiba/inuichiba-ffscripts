@@ -227,6 +227,10 @@ add/commit  ローカルでの作業履歴の記録（Gitの基本）
 - ターミナル（Terminal.app）を使用可能であること
 - Homebrew（Mac用パッケージマネージャ）がインストール済であること  
     - → 未導入の方は [Homebrew公式](https://brew.sh/index_ja) を参照
+- インストール先
+    - git … 3つともすべて
+    - VSCode … `inuichiba-ffworkers`
+    - それ以外 … `inuichiba-ffscripts` および `inuichiba-ffworkers`
 
 
 ### B. Node.js を Homebrew 経由でインストール
@@ -384,92 +388,25 @@ inuichiba-ffworkers/
 ├── src/
 │   └── index.js           # エントリポイント
 ```
+- wrangler.toml
+    - cloudflare Workers … cloudflare Workers のルートに置く
+    - Cloudflare Pages … **Cloudflare Scripts** のルートに置く
 
 
-### C. ⚙️ Wrangler 設定ファイル（wrangler.toml）
+### D. ⚙️ LINE の Messaging API の Webhook URL(仮)
 
-### cloudflare Workers
 ```text
-# 📛 ベース名（この name は fallback 用。各環境で上書きされます）
-name = "inuichiba-ffworkers"
-
-# エントリーポイント
-main = "src/index.js"
-
-# ✅ Cloudflare Workers は .js が ESM（ES Modules）形式なら自動的に module 型を検出
-# type = "module"
-
-# 📅 Wrangler の日付
-compatibility_date = "2025-06-24"
-
-# 💳 Cloudflare アカウント
-account_id = "YOUR_ACCOUNT_ID"
-
-# 独自ドメインがないときは true
-workers_dev = true
-
-# Wrangler 4.20以降では、Node.js 標準モジュール（たとえば os）を
-# 使う場合は明示的に互換設定が必要
-compatibility_flags = ["nodejs_compat"]
-
-# 本番環境用KV(Supabase連打スキップ機能)
-[[kv_namespaces]]
-binding = "users_kv"
-id = "9cc8cd1153a34a66a4e1bf313078664c"
-preview_id = "4ebfa42f89f7478888677c5486b6b540"
-
-
-# 🌍 通常は Workers.dev を使用（routes や zones は省略）
-# route = ""
-# zone_id = ""
-
-
-# ==========================
-# ✅ 開発環境 ffdev
-# ==========================
-[env.ffdev]
-# デプロイ時のWorker名
-name = "inuichiba-ffworkers-ffdev"
-
-# ⚠️ この vars セクションは Cloudflare Pages の "ビルド時" 変数用です
-# Cloudflare Workers の env.GCLOUD_PROJECT には渡されません
-# Workers で使うには Cloudflare ダッシュボードの「Variables(プレーンテキスト)」
-# に登録してください
-# https://dash.cloudflare.com/ → Workers → 環境変数（Variables）
-vars = { GCLOUD_PROJECT = "inuichiba-ffworkers-ffdev" }
-
-# ⚠️ kv_namespaces は継承されないので明示的に定義する
-[[env.ffdev.kv_namespaces]]
-binding = "users_kv"
-id = "4ebfa42f89f7478888677c5486b6b540"
-
-
-# ==========================
-# ✅ 本番環境 ffprod
-# ==========================
-[env.ffprod]
-name = "inuichiba-ffworkers-ffprod"
-vars = { GCLOUD_PROJECT = "inuichiba-ffworkers-ffprod" }
-
-[[env.ffprod.kv_namespaces]]
-binding = "users_kv"
-id = "9cc8cd1153a34a66a4e1bf313078664c"
+ffdev ：https://inuichiba-ffworkers-ffdev.maltese-melody0655.workers.dev
+ffprod：https://inuichiba-ffworkers-ffprod.maltese-melody0655.workers.dev
 ```
-- account_id は wrangler whoami で取得可能
+- `Webhook の利用` は**オン**にすること 
+- 新しい公式 LINE アカウントを使用するときはその URL にあわせること
+    - URLはデプロイすると表示される(または Cloudflare の GUI の Workers & Pages の Settings タブに inuichiba-ffworkers-ffdev.nasubi810.workers.dev のように表示される)
+    - シークレットファイルの CHANNEL_ACCESS_TOKEN と CHANNEL_SECRETS も書き換え、ffworkers-set-secrets.sh で登録し直すこと(または Cloudflare の GUI の Workers & Pages の Settings タブで手動で登録し直すこと)
+    - Workers & Pages は https://dash.cloudflare.com/ の左メニュー Compute(Workers) にある
 
 
-### Cloudflare Pages
-```text
-# ffimages用手動デプロイのために作成
-
-name = "inuichiba-ffimages"
-compatibility_date = "2025-06-24"
-pages_build_output_dir = "/Users/yourname/projectname/inuichiba-ffimages/public"
-```
-- **inuichiba-ffscripts** に置くこと(間違えないように！)
-
-
-### D. 🧪 ローカル開発（devモード）
+### E. 🧪 ローカル開発（devモード）
 ```bash
 npx wrangler dev
 ```
@@ -478,7 +415,7 @@ npx wrangler dev
 - いまのところ未使用
 
 
-### E. 🚀 デプロイ 
+### F. 🚀 デプロイ 
 ```bash
 npx wrangler deploy --env ffdev
 ```
@@ -486,14 +423,14 @@ npx wrangler deploy --env ffdev
 - --env を省略すると production 扱いになります
 
 
-### F. 📦 本番環境へデプロイ
+### G. 📦 本番環境へデプロイ
 ```bash
 npx wrangler deploy --env ffprod
 ```
 - env.ffprod の設定に従って Cloudflare に本番公開されます
 
 
-### G. 📝 その他よく使うコマンド
+### H. 📝 その他よく使うコマンド
 ```text
 コマンド                           説明
 wrangler init                     # 新規プロジェクト作成
@@ -516,6 +453,7 @@ wrangler tail --env ffdev         # ログのリアルタイム表示
 ## 7. 🧰 推奨エディタ（必須に近いです）
 
 初心者には **Visual Studio Code（VSCode）** の使用を強くおすすめします。
+また、インストール先は **inuichiba-ffworkers だけでいいです** 。
 
 ### ✅ 理由：
 - JavaScript / Shell / Markdown に対応した**構文チェックや色分け**
@@ -559,7 +497,7 @@ inuichiba-ffscripts/sh
 ### 🚩 Cloudflare Workers：LINE BotのソースコードをGit登録し、Cloudflare Workersをデプロイ、ログを取りながら評価
 - git登録
 ```bash
-cd inuichiba-ffscripts
+cd inuichiba-ffscripts/sh
 ./ffworkers-upload.sh
 ```
 
