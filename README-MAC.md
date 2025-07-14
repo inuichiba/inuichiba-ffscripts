@@ -223,12 +223,12 @@ wrangler init inuichiba-ffscripts
 
 ```test
 🔍 wrangler init によって自動生成される主なファイルと対応
-ファイル/ディレクトリ 用途	                      inuichiba-ffscripts では
+ファイル/ディレクトリ 用途                       inuichiba-ffscripts では
 wrangler.toml	      Pagesデプロイ設定ファイル    ✅ 必要（Gitから最新版を PULL すること）
 package.json       	npm依存管理、sharpなどで使用 ✅ 必要（ffscripts で使用。削除禁止）
-src/index.js	      Workers エントリーポイント   ❌ 不要 → 削除OK
+src/index.js        Workers エントリーポイント   ❌ 不要 → 削除OK
 tsconfig.json	      TypeScript用               ❌ 不要 → 削除OK
-test/index.test.js	単体テスト用テンプレート     ❌ 不要 → 削除OK
+test/index.test.js  単体テスト用テンプレート     ❌ 不要 → 削除OK
 ```
 
 - 🔐 package.json の備考
@@ -297,9 +297,9 @@ brew install node
 
 ```text
 リポジトリ           wrangler init	用途                       備考
-inuichiba-ffworkers	✅ 必要	      Cloudflare Workers 用	     LINE Bot 本体、Webhook処理、Supabase通信など
-inuichiba-ffscripts	✅ 必要	      Cloudflare Pages 用の設定  ffimages/public を安全にデプロイするため
-inuichiba-ffimages	❌ 不要	      画像のみ（最小構成）        .gitとpublic/ と最小限の設定ファイルで構成
+inuichiba-ffworkers ✅ 必要        Cloudflare Workers 用      LINE Bot 本体、Webhook処理、Supabase通信など
+inuichiba-ffscripts ✅ 必要        Cloudflare Pages 用の設定  ffimages/public を安全にデプロイするため
+inuichiba-ffimages  ❌ 不要        画像のみ（最小構成）        .gitとpublic/ と最小限の設定ファイルで構成
 ```
 
 ---
@@ -310,8 +310,11 @@ inuichiba-ffimages	❌ 不要	      画像のみ（最小構成）        .git�
 
 ```bash
 npx wrangler deploy --env ffdev   # 開発環境
-npx wrangler deploy --env ffprod  # 本番環境
+npx wrangler deploy --env ffprod  # 本番環境(慎重に！)
 ```
+
+- 必ず ffdev でデプロイし、動作確認してから ffprod をデプロイすること。
+- 知らないうちに仕様変更が行われていて、デプロイしたとたん動かなくなることが多々あります。
 
 ### 🔍 ログ確認（Bot応答確認に便利）：
 
@@ -334,10 +337,10 @@ ffprod https://inuichiba-ffworkers-ffprod.○○○.workers.dev
     - https://dash.cloudflare.com/ から自分の Account Home -> Compute(Workers) -> Workers & Pages へ行く
     - 開発なら inuichiba-ffworkers-ffdev をクリックし、Setting タブをクリック
     - Domains & Routes に表示されている workers.dev に表示されている値の最初に `https://` をつけて LINE Bot へ登録
-- LINE Bot の `Webhook利用` を `ON` にしてください
-- LINE Bot の `応答メッセージ` を `有効` にしてください
-- Secrets（チャネルアクセストークンやチャネルシークレットなど）の登録も忘れずに
-    - Variables も Secrets も改行や空白や"などを付けて登録してはいけません 
+- LINE Bot の `Webhook利用` を `ON` にしてください。
+- LINE Bot の `応答メッセージ` を `有効` にしてください。
+- Secrets（チャネルアクセストークンやチャネルシークレットなど）の登録も忘れずに行ってください。
+    - Variables も Secrets も改行や空白や"などを付けて登録してはいけません 。
 - Secrets を GUI から登録する方法
     - 上記 Settings の Variables and Secrets にある
     - GCLOUD_PROJECT はプレーンテキストなので必ず GUI で登録すること(スクリプトだと全て Secret で登録してしまうため)
@@ -392,13 +395,13 @@ ffworkers/src/lib/env.js                          # 環境設定（参照のみ�
 ## 10. よくあるエラー・注意点
 
 ```text
-エラー内容	対処法
+エラー内容           対処法
 Permission          denied chmod +x script.sh で実行権限を付ける
 pushできない         git-pull-main.sh で最新化してから再実行
 Secretsが未登録     .env.secrets.ff*.txt を読み込み登録する
 Windowsパスが登場    Macでは /Users/... 形式で書き換えること
 Pushしたが変化なし   差分がないと何も起きません（正常）
-
+```
 ---
 
 ## 11. シークレット設定（環境変数）
