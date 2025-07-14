@@ -322,9 +322,9 @@ npx wrangler deploy --env ffprod  # 本番環境(慎重に！)
 npx wrangler tail --env ffdev
 ```
 
-### 🔗 Webhook URLの登録（LINE Developers）
+### 🔗 LINE Bot の設定
 
-- LINE Developersで設定するWebhook URLは以下です：
+#### LINE Developers で設定する Webhook URL は以下です：
 
 ```text
 環境   Webhook URL                                        
@@ -337,13 +337,34 @@ ffprod https://inuichiba-ffworkers-ffprod.○○○.workers.dev
     - https://dash.cloudflare.com/ から自分の Account Home -> Compute(Workers) -> Workers & Pages へ行く
     - 開発なら inuichiba-ffworkers-ffdev をクリックし、Setting タブをクリック
     - Domains & Routes に表示されている workers.dev に表示されている値の最初に `https://` をつけて LINE Bot へ登録
-- LINE Bot の `Webhook利用` を `ON` にしてください。
-- LINE Bot の `応答メッセージ` を `有効` にしてください。
+- LINE Bot の LINE Developers の `Webhook利用` を `ON` にしてください。
 - Secrets（チャネルアクセストークンやチャネルシークレットなど）の登録も忘れずに行ってください。
-    - Variables も Secrets も改行や空白や"などを付けて登録してはいけません 。
+    - Variables も Secrets も改行や空白や"などを付けて登録してはいけません。
 - Secrets を GUI から登録する方法
     - 上記 Settings の Variables and Secrets にある
     - GCLOUD_PROJECT はプレーンテキストなので必ず GUI で登録すること(スクリプトだと全て Secret で登録してしまうため)
+
+#### LINE Developers
+
+`Webhook の利用` ON
+`グループトーク・複数人トークへの参加を許可する` 有効
+`応答メッセージ` 有効
+
+#### LINE Official Account Mananger
+
+`チャット` OFF
+`あいさつメッセージ` OFF
+`Webhook` ON
+
+`応答メッセージ` ON
+- タイトル `QRコード自体はBotで出す`
+- キーワード応答 `QRコード` , `友だち登録`
+- オプション指定 `OFF`
+- 対応するメッセージは次のとおり
+```text
+{友達の表示名}さん、「{アカウント名}」の友だち追加用のQRコードです。  
+どうぞお使いくださいね。
+```
 
 ---
 

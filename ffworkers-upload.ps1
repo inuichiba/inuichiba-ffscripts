@@ -61,8 +61,8 @@ if ($diffFiles) {
 }
 
 # ⏳ 内容確認タイム
-Write-Host "`n⏳ 60秒間お待ちします... じっくり内容を確認してください。" -ForegroundColor DarkGray
-for ($i = 60; $i -ge 1; $i--) {
+Write-Host "`n⏳ 30秒間お待ちします... じっくり内容を確認してください。" -ForegroundColor DarkGray
+for ($i = 30; $i -ge 1; $i--) {
     Write-Host "⏳ 残り $i 秒..." -NoNewline
     Start-Sleep -Seconds 1
     Write-Host "`r" -NoNewline
