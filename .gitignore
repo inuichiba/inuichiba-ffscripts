@@ -4,7 +4,6 @@
 
 # 📦 Node.js 関連
 node_modules/
-package-lock.json
 
 # 📂 一時ファイルやキャッシュ
 *.log
