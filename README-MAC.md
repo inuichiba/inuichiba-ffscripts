@@ -223,10 +223,10 @@ wrangler init inuichiba-ffscripts
 ```test
 🔍 wrangler init によって自動生成される主なファイルと対応
 ファイル/ディレクトリ 用途                       inuichiba-ffscripts では
-wrangler.toml	      Pagesデプロイ設定ファイル    ✅ 必要（Gitから最新版を PULL すること）
-package.json       	npm依存管理、sharpなどで使用 ✅ 必要（ffscripts で使用。削除禁止）
+wrangler.toml       Pagesデプロイ設定ファイル    ✅ 必要（Gitから最新版を PULL すること）
+package.json        npm依存管理、sharpなどで使用 ✅ 必要（ffscripts で使用。削除禁止）
 src/index.js        Workers エントリーポイント   ❌ 不要 → 削除OK
-tsconfig.json	      TypeScript用               ❌ 不要 → 削除OK
+tsconfig.json       TypeScript用               ❌ 不要 → 削除OK
 test/index.test.js  単体テスト用テンプレート     ❌ 不要 → 削除OK
 ```
 
@@ -245,7 +245,7 @@ test/index.test.js  単体テスト用テンプレート     ❌ 不要 → 削�
 }
 ```
     - type: "module" 指定により、ESM形式の import/export を使用しています。
-    - "node": ">=18.0.0" 指定しています。Node.js のバージョンは 18.0以上が必要です。
+    - "node": ">=18.0.0" 指定により、Node.js のバージョンは 18.0以上が必要です。
 
 ### ✅ 6-3. package.json について
 
@@ -268,11 +268,11 @@ npm install  # ← これだけですべて自動的に復元されます
 - sharp, vitest, zod, wrangler などすべての開発・本番依存が自動的にインストールされます。
 
 - ただし、Node.js バージョンが極端に古いと失敗することがあるため、Node.js は 18 以上である必要があります。
-- エラーが出る場合は、Node.js のバージョンが古すぎないか確認してください。
+- エラーが出る場合は、Node.js のバージョンが古すぎないか確認してください(私はv22よ)。
 
 ```bash
 # inuichiba-ffworkers
-cd ~/inuichiba-ffworkers
+cd ~/inuichiba-ffworkersvvvv
 node -v   # → v18.XX.X 以上であること
 
 # inuichiba-ffscripts
@@ -372,7 +372,17 @@ ffprod https://inuichiba-ffworkers-ffprod.maltese-melody0655.workers.dev
 {友達の表示名}さん、「{アカウント名}」の友だち追加用のQRコードです。  
 どうぞお使いくださいね。
 ```
-- 応答メッセージは、応答メッセージにプラスして `QRコードを付けて` 表示する（messages.jsで実行）
+- 応答メッセージは、 `QRコードを付けて` 表示されます（messages.jsで実行）
+
+#### 7.3.4 Webhook URL の検証ボタン
+
+- 準備が正しく整っていたら **検証** ボタンを押すと「成功」が返ります（内部的には 200 が返ります）。
+- それ以外が返った場合はデバッグの腕の見せ所です。ChatGPT や前任者に頼って解決してください。
+- 検証ボタンで「成功」が返らない場合や、LINE の X-Line-Signature でのエラーの場合、解決まで比較的時間がかかります。
+- スクリプトの正しさを見抜く目と、定義を正しく行うことがとても重要です。
+
+- その他になりますが、公式LINEには最低限チャネルアイコン（写真）、チャネル説明などは定義してください。何も定義がないと、ブロックされているとみなされ、Supabase書き込みなどに失敗します。
+- 公式LINE は `Messageing API`、アプリタイプは `ボット` など、正しく設定してください。
 
 ---
 
