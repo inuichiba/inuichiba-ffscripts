@@ -113,9 +113,9 @@ chmod +x *.sh  # 初回だけでOK
 ### 5-1. Pull（他の人の変更を取り込む）
 
 ```bash
-./git-pull-main.sh -target ffworkers
-./git-pull-main.sh -target ffimages
-./git-pull-main.sh -target ffscripts
+./git-pull-main.sh -target ffworkers  # inuichiba-ffworkers の変更を取り込む
+./git-pull-main.sh -target ffimages   # inuichiba-ffimages  の変更を取り込む
+./git-pull-main.sh -target ffscripts  # iniuchiba-ffscripts の変更を取り込む
 ```
 
 #### 5-1-1. いつ pull するか
@@ -149,24 +149,23 @@ uploadスクリプトで差分ありと警告された時  pushできないの�
 
 - コマンドの意味は次の通りです。
 - 実際は ffimages-upload-deploy.sh / ffworkers-upload.sh / ffscripts-upload.sh を使ってください。
-```text
-git status            # 変更点を確認
-git add -A            # すべての変更をステージに追加
-git commit -m "変更内容を簡潔にわかりやすく書く"
-git push origin main  # リモート（GitHub）へ送信
+```bash
+git status                      # 変更点を確認
+git add -A                      # 追加/削除/変更のすべてをステージに追加
+git commit -m "変更内容を簡潔に"  # 変更内容を短いメッセージで記録（-m:message の略）
+git push origin main            # リモート（GitHub）へ送信
 ```
 
-#### 5-2-2. 🧠 補足：この作業がなぜ必要か？
+### 5-3. 🧠 補足：この作業がなぜ必要か？
 
-```text
-操作        目的
-pull        他の人の変更を自分に反映（競合防止）
-push        自分の変更をGitHubに反映（バックアップ・共有）
-add/commit  ローカルでの作業履歴の記録（Gitの基本）
+```bash
+# 操作      # 目的
+pull        # 他の人の変更を自分に反映（競合防止）
+push        # 自分の変更をGitHubに反映（バックアップ・共有）
+add/commit  # ローカルでの作業履歴の記録（Gitの基本）
 ```
 
 ---
-
 
 ## 6 Wrangler 初期化と構成の注意点（Cloudflare Workers / Pages）
 
@@ -314,7 +313,7 @@ npx wrangler deploy --env ffprod  # 本番環境(慎重に！)
 ```
 
 - 必ず ffdev でデプロイし、動作確認してから ffprod をデプロイすること。
-- 知らないうちに仕様変更が行われていて、デプロイしたとたん動かなくなることが多々あります。
+- 知らないうちに仕様変更が行われていて、**デプロイしたとたん動かなくなる** ことが多々あります。
 
 ### 🔍 7-2. ログ確認（Bot応答確認に便利）：
 
@@ -327,30 +326,38 @@ npx wrangler tail --env ffdev
 #### 7-3-1. LINE Developers で設定する Webhook URL は以下です：
 
 ```text
-環境   Webhook URL                                        
+環境   Webhook URL
 ffdev  https://inuichiba-ffworkers-ffdev.○○○.workers.dev  
 ffprod https://inuichiba-ffworkers-ffprod.○○○.workers.dev 
 ```
 
-- デプロイ後にURLが表示されます
+- 最初に私の公式LINEをそのまま使う場合は次のURLを使ってください。
+
+```text
+環境   Webhook URL
+ffdev  https://inuichiba-ffworkers-ffdev.maltese-melody0655.workers.dev
+ffprod https://inuichiba-ffworkers-ffprod.maltese-melody0655.workers.dev 
+```
+  
+- デプロイ後にURLが表示されます(○○○を埋めてください。多分nasubi810だとは思うけど) 。
 - UTL を GUI から見つける方法
-    - https://dash.cloudflare.com/ から自分の Account Home -> Compute(Workers) -> Workers & Pages へ行く
+    - https://dash.cloudflare.com/ から自分の Account Home -> Compute(Workers) -> Workers & Pages へ行きます
     - 開発なら inuichiba-ffworkers-ffdev をクリックし、Setting タブをクリック
     - Domains & Routes に表示されている workers.dev に表示されている値の最初に `https://` をつけて LINE Bot へ登録
 - LINE Bot の LINE Developers の `Webhook利用` を `ON` にしてください。
 - Secrets（チャネルアクセストークンやチャネルシークレットなど）の登録も忘れずに行ってください。
     - Variables も Secrets も改行や空白や"などを付けて登録してはいけません。
 - Secrets を GUI から登録する方法
-    - 上記 Settings の Variables and Secrets にある
+    - 上記 Settings の Variables and Secrets にあります
     - GCLOUD_PROJECT はプレーンテキストなので必ず GUI で登録すること(スクリプトだと全て Secret で登録してしまうため)
 
-#### 7-3-2. LINE Developers
+#### 7-3-2. LINE Developers（ffdev/ffprod 両方とも定義）
 
 - `Webhook の利用` ON
 - `グループトーク・複数人トークへの参加を許可する` 有効
 - `応答メッセージ` 有効
 
-#### 7-3-3. LINE Official Account Mananger
+#### 7-3-3. LINE Official Account Mananger（ffdev/ffprod 両方とも定義）
 
 - `チャット` OFF
 - `あいさつメッセージ` OFF
@@ -360,11 +367,12 @@ ffprod https://inuichiba-ffworkers-ffprod.○○○.workers.dev
     - タイトル `QRコード自体はBotで出す`
     - キーワード応答 `QRコード` , `友だち登録`
     - オプション指定 `OFF`
-    - 対応するメッセージは次のとおり
+    - 対応するメッセージは次のとおり（変更したければ好きにしてくれて構いません）
 ```text
 {友達の表示名}さん、「{アカウント名}」の友だち追加用のQRコードです。  
 どうぞお使いくださいね。
 ```
+- 応答メッセージは、応答メッセージにプラスして `QRコードを付けて` 表示する（messages.jsで実行）
 
 ---
 
