@@ -52,7 +52,7 @@ git --version
 
 ## 2. リポジトリのクローン
 
-### クローン
+### 2-1. クローン
 
 ```bash
 git clone https://github.com/inuichiba/inuichiba-ffworkers.git
@@ -63,7 +63,7 @@ git clone https://github.com/inuichiba/inuichiba-ffimages.git
   - 🚫 GitHub上で「Fork」は **絶対に押さないでください**。
   - ✅ git remote -v で origin が inuichiba になっていることを確認。
 
-### git remote URL の確認コマンド
+### 2-2. git remote URL の確認コマンド
 
 ```bash
 git remote -v
@@ -76,7 +76,7 @@ origin  https://github.com/inuichiba/inuichiba-ffworkers.git (fetch)
 origin  https://github.com/inuichiba/inuichiba-ffworkers.git (push)
 ```
 
-### 問題があったときの対処（origin のURL修正）
+### 2-3. 問題があったときの対処（origin のURL修正）
 
 ```bash
 git remote set-url origin https://github.com/inuichiba/inuichiba-ffworkers.git
@@ -110,7 +110,7 @@ chmod +x *.sh  # 初回だけでOK
 
 ## 5. Git操作：Pull → Push の流れ
 
-### Pull（他の人の変更を取り込む）
+### 5-1. Pull（他の人の変更を取り込む）
 
 ```bash
 ./git-pull-main.sh -target ffworkers
@@ -118,7 +118,7 @@ chmod +x *.sh  # 初回だけでOK
 ./git-pull-main.sh -target ffscripts
 ```
 
-#### A. いつ pull するか
+#### 5-1-1. いつ pull するか
 - 以下のようなタイミングで pull を実行するのがよいです：
 ```text
 タイミング                              理由
@@ -127,7 +127,7 @@ chmod +x *.sh  # 初回だけでOK
 uploadスクリプトで差分ありと警告された時  pushできないので先にpullが必要
 ```
 
-#### B. 最新の変更を取り込む
+#### 5-1-2. 最新の変更を取り込む
 - 基本について、`git pull origin main` とは 「リモート（origin）のmainブランチをローカルに取り込む」 という意味です。
 - 今のブランチが main なのでこれで問題ありません。
 - 他の人が何か変更したかもしれないので、まずはリモートの内容を取り込みます。
@@ -137,7 +137,7 @@ uploadスクリプトで差分ありと警告された時  pushできないの�
 - ❌ pull を忘れると push が失敗し、**競合** が発生することがあります。
 
 
-### Push（自分の変更を反映）
+### 5-2. Push（自分の変更を反映）
 
 ```bash
 ./ffworkers-upload.sh        # Workers のコード更新(Git 登録)
@@ -145,7 +145,7 @@ uploadスクリプトで差分ありと警告された時  pushできないの�
 ./ffscripts-upload.sh        # スクリプトの更新 (Git 登録)
 ```
 
-#### A. 自分の変更を反映する（add → commit → push）
+#### 5-2-1. 自分の変更を反映する（add → commit → push）
 
 - コマンドの意味は次の通りです。
 - 実際は ffimages-upload-deploy.sh / ffworkers-upload.sh / ffscripts-upload.sh を使ってください。
@@ -156,7 +156,7 @@ git commit -m "変更内容を簡潔にわかりやすく書く"
 git push origin main  # リモート（GitHub）へ送信
 ```
 
-#### B. 🧠 補足：この作業がなぜ必要か？
+#### 5-2-2. 🧠 補足：この作業がなぜ必要か？
 
 ```text
 操作        目的
@@ -168,11 +168,11 @@ add/commit  ローカルでの作業履歴の記録（Gitの基本）
 ---
 
 
-## 5.5 Wrangler 初期化と構成の注意点（Cloudflare Workers / Pages）
+## 6 Wrangler 初期化と構成の注意点（Cloudflare Workers / Pages）
 
 - このプロジェクトでは、Cloudflare 向けに `wrangler.toml` を使用していますが、**使い方と初期化場所には注意が必要です。**
 
-### ✅ inuichiba-ffworkers（Workers本体）
+### ✅ 6-1. inuichiba-ffworkers（Workers本体）
 
 - このリポジトリは Cloudflare Workers を用いた LINE Bot の本体です。
 - コマンド実行前に package.json を退避してください（あれば。詳細後述）。
@@ -202,15 +202,15 @@ cd ~/inuichiba-ffscripts/sh
 ./git-pull-main.sh -target ffworkers
 ```
 
-### ✅ inuichiba-ffscripts（スクリプト集 + Cloudflare Pagesデプロイ）
+### ✅ 6-2.  inuichiba-ffscripts（スクリプト集 + Cloudflare Pagesデプロイ）
 
-#### このリポジトリは Workers を実行するわけではありませんが、`Cloudflare Pages 用に wrangler を使っています。`
+#### 6-2-1. このリポジトリは Workers を実行するわけではありませんが、`Cloudflare Pages 用に wrangler を使っています。`
 
 ```bash
 wrangler init inuichiba-ffscripts
 ```
 
-#### 💡 背景と構成方針：
+#### 6-2-2. 背景と構成方針：
 - inuichiba-ffimages は .git と public/ のみを持つ **最小構成リポジトリ** です。
 - そのため、Pages のデプロイ処理や wrangler.toml は **ffscripts 側に集約** しています。
 - 実際の画像デプロイは以下で行います：
@@ -219,7 +219,7 @@ wrangler init inuichiba-ffscripts
 ./ffimages-upload-deploy.sh  # ffscripts/sh 配下に配置
 ```
 
-#### 📁 wrangler init による自動生成ファイルと取扱
+#### 6-2-3. wrangler init による自動生成ファイルと取扱
 
 ```test
 🔍 wrangler init によって自動生成される主なファイルと対応
@@ -248,7 +248,7 @@ test/index.test.js  単体テスト用テンプレート     ❌ 不要 → 削�
     - type: "module" 指定により、ESM形式の import/export を使用しています。
     - "node": ">=18.0.0" 指定しています。Node.js のバージョンは 18.0以上が必要です。
 
-### ✅ package.json について
+### ✅ 6-3. package.json について
 
 - pullした場合、最新の packge.json と置き換わります。
 - そのため、最新の packge.json と同じ内容にするために、次を実行してください。
@@ -293,7 +293,7 @@ cd ~/inuichiba-ffscrtips
 brew install node
 ```
 
-### 📌 運用まとめ
+### 📌 6-4. 運用まとめ
 
 ```text
 リポジトリ           wrangler init	用途                       備考
@@ -304,9 +304,9 @@ inuichiba-ffimages  ❌ 不要        画像のみ（最小構成）        .git
 
 ---
 
-## 6. Cloudflare Workers のデプロイ
+## 7. Cloudflare Workers のデプロイ
 
-### 🔍 デプロイ(修正が LINE Bot へ反映される)：
+### 🔍 7-1. デプロイ(修正が LINE Bot へ反映される)：
 
 ```bash
 npx wrangler deploy --env ffdev   # 開発環境
@@ -316,15 +316,15 @@ npx wrangler deploy --env ffprod  # 本番環境(慎重に！)
 - 必ず ffdev でデプロイし、動作確認してから ffprod をデプロイすること。
 - 知らないうちに仕様変更が行われていて、デプロイしたとたん動かなくなることが多々あります。
 
-### 🔍 ログ確認（Bot応答確認に便利）：
+### 🔍 7-2. ログ確認（Bot応答確認に便利）：
 
 ```bash
 npx wrangler tail --env ffdev
 ```
 
-### 🔗 LINE Bot の設定
+### 🔍 7-3. LINE Bot の設定
 
-#### LINE Developers で設定する Webhook URL は以下です：
+#### 7-3-1. LINE Developers で設定する Webhook URL は以下です：
 
 ```text
 環境   Webhook URL                                        
@@ -344,23 +344,23 @@ ffprod https://inuichiba-ffworkers-ffprod.○○○.workers.dev
     - 上記 Settings の Variables and Secrets にある
     - GCLOUD_PROJECT はプレーンテキストなので必ず GUI で登録すること(スクリプトだと全て Secret で登録してしまうため)
 
-#### LINE Developers
+#### 7-3-2. LINE Developers
 
-`Webhook の利用` ON
-`グループトーク・複数人トークへの参加を許可する` 有効
-`応答メッセージ` 有効
+- `Webhook の利用` ON
+- `グループトーク・複数人トークへの参加を許可する` 有効
+- `応答メッセージ` 有効
 
-#### LINE Official Account Mananger
+#### 7-3-3. LINE Official Account Mananger
 
-`チャット` OFF
-`あいさつメッセージ` OFF
-`Webhook` ON
+- `チャット` OFF
+- `あいさつメッセージ` OFF
+- `Webhook` ON
 
-`応答メッセージ` ON
-- タイトル `QRコード自体はBotで出す`
-- キーワード応答 `QRコード` , `友だち登録`
-- オプション指定 `OFF`
-- 対応するメッセージは次のとおり
+- `応答メッセージ` ON
+    - タイトル `QRコード自体はBotで出す`
+    - キーワード応答 `QRコード` , `友だち登録`
+    - オプション指定 `OFF`
+    - 対応するメッセージは次のとおり
 ```text
 {友達の表示名}さん、「{アカウント名}」の友だち追加用のQRコードです。  
 どうぞお使いくださいね。
@@ -368,9 +368,9 @@ ffprod https://inuichiba-ffworkers-ffprod.○○○.workers.dev
 
 ---
 
-## 7. リッチメニューの再登録
+## 8. リッチメニューの再登録
 
-### メニュー画像の BASE64 変換 & JSファイル化
+### 8-1. メニュー画像の BASE64 変換 & JSファイル化
 
 ```bash
 cd ~/inuichiba-ffscripts/
@@ -378,20 +378,23 @@ node compress-images.js base64         # 通常モードで変換後、Base64に
 node compress-images.js detail base64  # 詳細モードで変換後、base64に変換して画像名.jsにして格納する
 ```
 
-- WindowsもMacも同じスクリプトが使えるため、`/Users/yourname/projectname/` 配下にあることに注意してください
-- Sharp が必要など、いくつかインストール作業が必要。詳細は compress-images.js を参照してください
-- もともとは inuichiba-ffimages で使う画像ファイルの横幅を変更したり、ファイルサイズを圧縮したりするために使っています
+- WindowsもMacも同じスクリプトが使えるため、`/Users/yourname/projectname/inuichiba-ffscripts/` 配下にあることに注意してください。
+- Sharp が必要など、いくつかインストール作業が必要。詳細は上記や compress-images.js を参照してください。
+- もともとは inuichiba-ffimages で使う画像ファイルの横幅を変更したり、ファイルサイズを圧縮したりするために使っています。
 
-### メニューの反映
+### 8-2. メニューの反映
 
 ```bash
 ./ffworkers-run-richmenu.sh -env ffdev   # 開発環境で確認
 ./ffworkers-run-richmenu.sh -env ffprod  # 本番適用（慎重に！）
 ```
 
+- 必ず ffdev で再作成し、動作確認してから ffprod を再作成してください。
+- 知らないうちに仕様変更が行われていて、再作成したとたん動かなくなることが多々あります。
+
 ---
 
-## 8. VSCode 推奨理由と導入
+## 9. VSCode 推奨理由と導入
 
 ```bash
 brew install --cask visual-studio-code
@@ -402,7 +405,7 @@ brew install --cask visual-studio-code
 
 ---
 
-## 9. よく触るファイル（編集対象）
+## 10. よく触るファイル（編集対象）
 
 ```bash
 ffworkers/src/handlers/event.js                   # 応答処理の中心
@@ -413,7 +416,7 @@ ffworkers/src/lib/env.js                          # 環境設定（参照のみ�
 
 ---
 
-## 10. よくあるエラー・注意点
+## 11. よくあるエラー・注意点
 
 ```text
 エラー内容           対処法
@@ -426,7 +429,7 @@ Pushしたが変化なし   差分がないと何も起きません（正常）
 
 ---
 
-## 11. シークレット設定（環境変数）
+## 12. シークレット設定（環境変数）
 
 ```bash
 # ffdev環境に登録
@@ -436,7 +439,7 @@ Pushしたが変化なし   差分がないと何も起きません（正常）
 ./ffworkers-set-secrets.sh -env ffprod
 ```
 
-- Secretsは src/secrets/.env.secrets.ff*.txt にまとめてあります。
+- Secretsは src/secrets/.env.secrets.ff*.txt にまとめてください。
 - これを実行すると,env.secrets.ff*.txtに定義してある内容が全て書き換えられます。
 - ただし、secretsファイルは秘匿ファイルなのでGitに登録してはいけません(他にばれたらいけないファイルで .gitignore 対象)。
 - なので、必要になった(自分の LINE Bot の Official Account の値を登録する)時点で前任者に相談してください。
@@ -445,17 +448,18 @@ Pushしたが変化なし   差分がないと何も起きません（正常）
 
 ---
 
-## 12. 開発と本番の切り替え
+## 13. 開発と本番の切り替え
 
 - Gitは main ブランチ1本で運用
 - Supabase や LINE Bot 設定は isProd フラグで自動判別（ffdev / ffprod）
-- メニューは isProd で切り替わるが、注意して切り替えること
+- メニューは isProd で切り替わるが、何か所かにあるので注意して切り替えること
 
 ---
 
-## 13. 困ったときは
+## 14. 困ったときは
 - ChatGPT や前任者に相談してください。
-- READMEに改善案があれば Pull Request を歓迎します 🙌
+- /sh配下のスクリプトは評価されていません。問題が発生する可能性は高いので（一度で通らないのが普通）、しっかり証拠（画面に出たログやどうしたかったかやスクリプト内容など）を添えて、ChatGPT に問い合わせてください。
+- README に改善案があれば Pull Request を歓迎します 🙌
 
 
 
