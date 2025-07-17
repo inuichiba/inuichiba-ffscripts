@@ -21,6 +21,7 @@ Write-Host "📍 現在のブランチ: $branch" -ForegroundColor Yellow
 if ($branch -ne "main") {
     Write-Host "`n⚠️ 現在のブランチは 'main' ではありません → '$branch'" -ForegroundColor Red
     Write-Host "🚫 push を中止します。" -ForegroundColor Red
+
     Set-Location $PSScriptRoot
     exit 1
 }
@@ -110,3 +111,5 @@ git status
 
 # スクリプトがあるディレクトリに戻る
 Set-Location $PSScriptRoot
+
+
