@@ -4,34 +4,11 @@ import fetch from "node-fetch";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const CF_API_TOKEN = process.env.CF_API_TOKEN;
 
-// 評価終了時削除！
-const TEST_FORCE_DISCORD = true; // ← ← ← これを true にすると通知されます
-
-
-
-
 const ACCOUNT_ID = "39914da7b7f259b59d901f0b57cc17cc";
 const NAMESPACES = [
   { name: "ffdev-users_kv", id: "4ebfa42f89f7478888677c5486b6b540" },
   { name: "ffprod-users_kv", id: "9cc8cd1153a34a66a4e1bf313078664c" }
 ];
-
-// 評価が終わったら削除！！
-if (TEST_FORCE_DISCORD) {
-  await fetch(DISCORD_WEBHOOK_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      content: "🚨 Discord通知テストです！（これは手動で送信されたメッセージです）"
-    }),
-  });
-  console.log("✅ テスト通知を送信しました！");
-  process.exit(1); // 失敗として終了（メールもテストできる）
-}
-
-
-
-
 
 const KV_LIMITS = {
   read: 100000,
