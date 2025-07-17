@@ -52,6 +52,7 @@ inuichiba-ffscripts/
   ffscripts-upload.ps1        # inuichiba-ffscripts をGit登録する
   ffworkers-upload.ps1        # inuichiba-ffworkers をGit登録する(デプロイは手動で実施)
   git-pull-main.ps1           # 3つすべてにおいて、Git pull を実行する
+  compress-images.js          # ffimagesでの画像ファイルの圧縮、ffworkersでのメニュー画像のBase64 JS化 
   ffworkers-run-richmenu.ps1  # inuichiba-ffworkers でリッチメニュー作成を行う(ローカルで行われる)
   ffworkers-set-secrets.ps1   # inuichiba-ffworkers の Secrets を .env.secrets.ff*.txt を元に一括登録
      :
