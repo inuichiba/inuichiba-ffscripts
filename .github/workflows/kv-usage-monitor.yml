@@ -3,7 +3,7 @@ name: KV Usage Monitor
 on:
   workflow_dispatch:  # ✅ 手動実行可能にする
   schedule:
-    - cron: '0 0 1,5,10,15,20,25,30 * *'  # 5日ごとの9:00 JST(UTC+9)
+    - cron: '0 0 * * *'  # 毎日 JST 09:00（UTC 0:30）
 
 jobs:
   monitor:

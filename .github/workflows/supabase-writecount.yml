@@ -22,7 +22,7 @@ jobs:
           kv_namespaces[ffprod-users_kv]="9cc8cd1153a34a66a4e1bf313078664c"
 
           now=$(TZ=Asia/Tokyo date "+%Y-%m")
-          threshold=40000
+          threshold=1
           failures=""
 
           for kv in "${!kv_namespaces[@]}"; do
