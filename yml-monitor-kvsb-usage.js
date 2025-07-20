@@ -94,20 +94,28 @@ async function checkSupabaseUsage() {
       headers: { Authorization: `Bearer ${CF_API_TOKEN}` }
     });
 
-    if (!res.ok) {
-      let msg = "取得失敗";
-      try {
-        const err = await res.json();
-        msg = err?.errors?.[0]?.message || "不明なエラー";
-      } catch {
-        msg = "レスポンス形式が不正";
-      }
-      results.push(`❌ [${ns.name}] Supabase件数取得失敗: ${msg}`);
+    const status = res.status;
+    const text = await res.text();
+
+    if (status === 404) {
+      results.push(`❌ [${ns.name}] Supabase件数取得失敗: キーが見つかりません（404）`);
       error = true;
       continue;
     }
 
-    const text = await res.text();
+    if (!res.ok) {
+      let reason = "取得失敗";
+      try {
+        const err = JSON.parse(text);
+        reason = err?.errors?.[0]?.message || res.statusText;
+      } catch {
+        reason = res.statusText;
+      }
+      results.push(`❌ [${ns.name}] Supabase件数取得失敗: ${reason}`);
+      error = true;
+      continue;
+    }
+
     const count = parseInt(text, 10);
     if (isNaN(count)) {
       results.push(`❌ [${ns.name}] 件数が数値ではありません: ${text}`);
@@ -127,6 +135,7 @@ async function checkSupabaseUsage() {
     return { error: false };
   }
 }
+
 
 // ✅ メイン処理
 (async () => {
