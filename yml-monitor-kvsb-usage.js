@@ -1,11 +1,11 @@
 import fetch from "node-fetch";
 
 // 評価終了時削除！
-console.log("🔐 CF_API_TOKEN_MONITOR 長さ:", (process.env.CF_API_TOKEN_MONITOR || "").length);
+console.log("🔐 CFW_API_TOKEN 長さ:", (process.env.CFW_API_TOKEN || "").length);
 
 // 🔐 Secrets from GitHub Actions
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
-const CF_API_TOKEN_MONITOR = process.env.CF_API_TOKEN_MONITOR;
+const CFW_API_TOKEN = process.env.CFW_API_TOKEN;
 
 // 🧩 Cloudflare アカウント・KV情報
 const ACCOUNT_ID = "39914da7b7f259b59d901f0b57cc17cc";
@@ -41,7 +41,7 @@ async function checkKVUsage() {
 
   for (const ns of KV_NAMESPACES) {
     const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces/${ns.id}/usage`, {
-      headers: { Authorization: `Bearer ${CF_API_TOKEN_MONITOR}` }
+      headers: { Authorization: `Bearer ${CFW_API_TOKEN}` }
     });
 
     const data = await res.json();
@@ -94,7 +94,7 @@ async function checkSupabaseUsage() {
 
     const res = await fetch(url, {
       method: "GET",
-      headers: { Authorization: `Bearer ${CF_API_TOKEN_MONITOR}` }
+      headers: { Authorization: `Bearer ${CFW_API_TOKEN}` }
     });
 
     const status = res.status;

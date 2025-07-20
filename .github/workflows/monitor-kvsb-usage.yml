@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-      CF_API_TOKEN_MONITOR: ${{ secrets.CF_API_TOKEN_MONITOR }}
+      CFW_API_TOKEN: ${{ secrets.CFW_API_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
