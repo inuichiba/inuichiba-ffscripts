@@ -34,7 +34,8 @@ async function getKVUsage(namespaceId) {
 }
 
 function isOverLimit(value, limit) {
-  return value > limit * threshold;
+  return;
+  // return value > limit * threshold;
 }
 
 function formatUsage(nsName, usage) {
