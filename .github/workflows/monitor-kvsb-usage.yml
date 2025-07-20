@@ -1,13 +1,4 @@
 # monitor-kvsb-usage.yml
-# KVの使用量 + Supabase書き込み件数をまとめて監視
-# どちらかが80%超えたらDiscord通知とメール通知（GitHub Actions失敗）を行う
-# 📝  Write Operations  KV書き込み回数       1,000   800回    1日あたり
-# ❌  Delete Operations KV削除回数           1,000   800回    1日あたり
-# 📋  List Operations   KVリスト取得         1,000   800回    1日あたり
-# 📦  Storage           KVの合計保存バイト数  1GB     800MB    ⭐恒久(超えると新規書き込みはできない)
-#
-# ⭐放置厳禁。手動で削除 or namespaceを分割するしかない
-#  ※"1日あたり"の場合、「毎日午前0時（UTC）」にリセットされる（JSTでは朝9時）
 
 name: 📊 Check KV & Supabase 使用状況統合モニタリング（80% 警告通知）
 
@@ -29,8 +20,5 @@ jobs:
       - name: Install dependencies
         run: npm install node-fetch
 
-      - name: Check KV usage
-        run: node yml-check-kv-usage.js
-
-      - name: Check Supabase write count
-        run: node yml-supabase-writecount.js
+      - name: Monitor KV & Supabase usage
+        run: node yml-monitor-kvsb-usage.js
