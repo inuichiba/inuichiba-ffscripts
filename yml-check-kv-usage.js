@@ -1,20 +1,4 @@
-// check-kv-usage.js
-/**
- * GitHubのActionsから "kv-usage-monitor.yml" が毎日実行します
- * このワークフローは以下を目的としています：
- *
- * 項目 監視対象  上限値   警告閾値             上限値  警告閾値  単位
- * 📖  Read Operations   KV読み取り回数       100,000 80,00回  1日あたり
- * 📝  Write Operations  KV書き込み回数       1,000   800回    1日あたり
- * ❌  Delete Operations KV削除回数           1,000   800回    1日あたり
- * 📋  List Operations   KVリスト取得         1,000   800回    1日あたり
- * 📦  Storage           KVの合計保存バイト数  1GB     800MB    ⭐恒久(超えると新規書き込みはできない)
- *
- * ⭐放置厳禁。手動で削除 or namespaceを分割するしかない
- * ※"1日あたり"の場合、「毎日午前0時（UTC）」にリセットされる（JSTでは朝9時）
- *
- */
-
+// yml-check-kv-usage.js
 
 import fetch from "node-fetch";
 
