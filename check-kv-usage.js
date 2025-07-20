@@ -48,7 +48,8 @@ async function getKVUsage(namespaceId) {
 }
 
 function isOverLimit(value, limit) {
-  return value > limit * threshold;
+  return true;
+  // return value > limit * threshold;
 }
 
 function formatUsage(nsName, usage) {
@@ -63,7 +64,7 @@ function formatUsage(nsName, usage) {
 
   const limits = KV_LIMITS;
 
-if (isOverLimit(read_operations, limits.read.value)) {
+  if (isOverLimit(read_operations, limits.read.value)) {
     messages.push(`📖 Read: ${read_operations} / ${limits.read.value}　(${limits.read.note})`);
   }
 
