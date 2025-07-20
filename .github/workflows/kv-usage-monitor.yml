@@ -1,4 +1,9 @@
-name: KV Usage Monitor
+# Cloudflare WorkersのKVネームスペースについて、以下の5項目の使用状況を毎日チェック：
+# - Read / Write / Delete / List の各オペレーション数
+# - ストレージ使用量（1GB上限）
+# いずれかが80%を超えた場合に、Discord通知とGitHub Actionsの失敗通知を行います
+
+name: 💾 KV Usage Monitor（Cloudflare KVの使用量監視 & 警告通知）
 
 on:
   workflow_dispatch:  # ✅ 手動実行可能にする
