@@ -2,6 +2,8 @@
 // Node.js版 Supabase 書き込み件数チェック
 
 
+i// yml-supabase-writecount.js
+
 import fetch from "node-fetch";
 
 const CF_API_TOKEN = process.env.CF_API_TOKEN;
@@ -16,9 +18,9 @@ const NAMESPACES = [
 
 const THRESHOLD = 40000; // 5万件の80%
 
-// 現在の年月（JST）
-const now = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
-const yyyymm = now.slice(0, 7); // "2025-07" 形式
+// JST時刻
+const nowJST = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+const yyyymm = nowJST.slice(0, 7);
 
 let errorOccurred = false;
 let messages = [];
@@ -36,8 +38,16 @@ async function checkWriteCount() {
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      messages.push(`❌ [${ns.name}] キー取得失敗: ${err}`);
+      // JSONをパースして message を抽出
+      let msg = "取得失敗";
+      try {
+        const errData = await res.json();
+        msg = errData?.errors?.[0]?.message || "Unknown error";
+      } catch {
+        msg = "レスポンスが不正";
+      }
+
+      messages.push(`❌ [${ns.name}] キー取得失敗: ${msg}`);
       errorOccurred = true;
       continue;
     }
@@ -59,7 +69,7 @@ async function checkWriteCount() {
   }
 
   if (messages.length > 0) {
-    const payload = `📊 Supabase 書き込み件数チェック（${now} JST）\n` + messages.join("\n");
+    const payload = `📊 Supabase 書き込み件数チェック（${nowJST} JST）\n` + messages.join("\n");
 
     await fetch(DISCORD_WEBHOOK_URL, {
       method: "POST",
