@@ -1,5 +1,3 @@
-# monitor-kvsb-usage.yml
-
 name: 📊 Monitor KV & Supabase Usage：KV & Supabase 使用状況統合モニタリング（80% 警告通知）
 
 on:
@@ -10,21 +8,6 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-
-    steps: # 評価終了後削除！！
-      - name: Print first 5 letters and length
-        run: |
-          echo "🔍 CF_ACCOUNT_ID head:" ${CF_ACCOUNT_ID:0:5}
-          echo "🔍 CF_ACCOUNT_ID length:" ${#CF_ACCOUNT_ID}
-          echo "🔍 KV_API_TOKEN_FFDEV head:" ${KV_API_TOKEN_FFDEV:0:5}
-          echo "🔍 KV_API_TOKEN_FFDEV length:" ${#KV_API_TOKEN_FFDEV}
-          echo "🔍 KV_API_TOKEN_FFPROD head:" ${KV_API_TOKEN_FFPROD:0:5}
-          echo "🔍 KV_API_TOKEN_FFPROD length:" ${#KV_API_TOKEN_FFPROD}
-        env:
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
-          KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
-
 
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -45,6 +28,15 @@ jobs:
 
       - name: 📦 依存関係をインストール
         run: npm install
+
+      - name: 🔍 Secretsの先頭5文字と長さを出力
+        run: |
+          echo "🔍 CF_ACCOUNT_ID head:" ${CF_ACCOUNT_ID:0:5}
+          echo "🔍 CF_ACCOUNT_ID length:" ${#CF_ACCOUNT_ID}
+          echo "🔍 KV_API_TOKEN_FFDEV head:" ${KV_API_TOKEN_FFDEV:0:5}
+          echo "🔍 KV_API_TOKEN_FFDEV length:" ${#KV_API_TOKEN_FFDEV}
+          echo "🔍 KV_API_TOKEN_FFPROD head:" ${KV_API_TOKEN_FFPROD:0:5}
+          echo "🔍 KV_API_TOKEN_FFPROD length:" ${#KV_API_TOKEN_FFPROD}
 
       - name: 🚀 KV・Supabase 使用状況をチェック
         run: node yml-monitor-kvsb-usage.js
