@@ -7,7 +7,7 @@ import {
 
 import {
   getKVUsage,
-  notifyKVUsageIfNeeded,
+  notifyIfUsageExceeded,
 } from "./lib/yml-kv-utils.js";
 
 const ACCOUNT_ID = process.env.ACCOUNT_ID;
@@ -40,7 +40,7 @@ const KV_CONFIGS = [
       continue;
     }
 
-    await notifyKVUsageIfNeeded({
+    await notifyIfUsageExceeded({
       usage,
       kvName: name,
       isProd,
