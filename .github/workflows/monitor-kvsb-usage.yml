@@ -15,7 +15,7 @@ jobs:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
       KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
       KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
 

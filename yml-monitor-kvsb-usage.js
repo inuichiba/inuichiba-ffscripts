@@ -10,7 +10,7 @@ import {
   notifyIfUsageExceeded,
 } from "./lib/yml-kv-utils.js";
 
-const ACCOUNT_ID = process.env.ACCOUNT_ID;
+const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -39,7 +39,7 @@ console.log("🔐 FFPROD Tokenの先頭:", process.env.KV_API_TOKEN_FFPROD?.slic
   for (const config of KV_CONFIGS) {
     const { kvNamespaceId, isProd, name, apiToken } = config;
 
-    const usage = await getKVUsage(ACCOUNT_ID, kvNamespaceId, apiToken);
+    const usage = await getKVUsage(CF_ACCOUNT_ID, kvNamespaceId, apiToken);
     if (!usage) {
       console.error(`❌ [${name}] 使用量取得失敗`);
       continue;
