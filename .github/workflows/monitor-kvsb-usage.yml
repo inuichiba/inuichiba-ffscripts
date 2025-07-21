@@ -1,24 +1,35 @@
 # monitor-kvsb-usage.yml
 
-name: 📊 Check KV & Supabase 使用状況統合モニタリング（80% 警告通知）
+name: 📊 Monitor KV & Supabase Usage：KV & Supabase 使用状況統合モニタリング（80% 警告通知）
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '30 0 * * *'  # JST 09:30 に毎日実行（UTC 0:30）
+    - cron: '30 0 * * *'  # JST 09:30（UTC 00:30）
+  workflow_dispatch:      # 手動実行も可
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
+
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-      CFW_API_TOKEN: ${{ secrets.CFW_API_TOKEN }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
+      KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: ⬇️ リポジトリをチェックアウト
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install node-fetch
+      - name: 🟢 Node.js をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: Monitor KV & Supabase usage
+      - name: 📦 依存関係をインストール
+        run: npm install
+
+      - name: 🚀 KV・Supabase 使用状況をチェック
         run: node yml-monitor-kvsb-usage.js
