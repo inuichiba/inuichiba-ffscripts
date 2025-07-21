@@ -30,21 +30,23 @@ const KV_CONFIGS = [
   },
 ];
 
+
+(async () => {
+  for (const config of KV_CONFIGS) {
+    const { kvNamespaceId, isProd, name, apiToken } = config;
+
 // 評価終了後削除！！
 const accountId = process.env.CF_ACCOUNT_ID;
 console.log("🔐 CF_ACCOUNT_ID (先頭5):", accountId?.substring(0, 5), "長さ:", accountId?.length);
 const aId = "39914da7b7f259b59d901f0b57cc17cc";
 console.log("🔐 正しいaId:(先頭5):", aId?.substring(0, 5), "長さ:", aId?.length);
 
-console.log("🧩 KVNamespace ID (先頭5):", kvNamespaceId?.substring(0, 5), "長さ:", kvNamespaceId?.length);
+console.log("🧩 KvNamespace ID (先頭5):", kvNamespaceId?.substring(0, 5), "長さ:", kvNamespaceId?.length);
 
 console.log("🔐 FFDEV  Token (先頭5):", process.env.KV_API_TOKEN_FFDEV?.substring(0, 5), "長さ:", process.env.KV_API_TOKEN_FFDEV?.length);
 console.log("🔐 FFPROD Token (先頭5):", process.env.KV_API_TOKEN_FFPROD?.substring(0, 5), "長さ:", process.env.KV_API_TOKEN_FFPROD?.length);
 
 
-(async () => {
-  for (const config of KV_CONFIGS) {
-    const { kvNamespaceId, isProd, name, apiToken } = config;
 
     const usage = await getKVUsage(kvNamespaceId, CF_ACCOUNT_ID, apiToken);
     if (!usage) {
