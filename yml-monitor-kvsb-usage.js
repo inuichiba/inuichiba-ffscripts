@@ -41,7 +41,7 @@ console.log("🔐 FFPROD Tokenの先頭:", process.env.KV_API_TOKEN_FFPROD?.slic
   for (const config of KV_CONFIGS) {
     const { kvNamespaceId, isProd, name, apiToken } = config;
 
-    const usage = await getKVUsage(CF_ACCOUNT_ID, kvNamespaceId, apiToken);
+    const usage = await getKVUsage(kvNamespaceId, CF_ACCOUNT_ID, apiToken);
     if (!usage) {
       console.error(`❌ [${name}] 使用量取得失敗`);
       continue;
