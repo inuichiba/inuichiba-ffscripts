@@ -30,6 +30,11 @@ const KV_CONFIGS = [
   },
 ];
 
+// 評価終了後削除！！
+console.log("🔐 FFDEV  Tokenの先頭:", process.env.KV_API_TOKEN_FFDEV?.slice(0, 5));
+console.log("🔐 FFPROD Tokenの先頭:", process.env.KV_API_TOKEN_FFPROD?.slice(0, 5));
+
+
 (async () => {
   for (const config of KV_CONFIGS) {
     const { kvNamespaceId, isProd, name, apiToken } = config;
