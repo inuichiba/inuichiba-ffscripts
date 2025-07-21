@@ -3,7 +3,7 @@ name: 📊 Monitor KV & Supabase Usage：KV & Supabase 使用状況統合モニ�
 on:
   schedule:
     - cron: '30 0 * * *'  # JST 09:30（UTC 00:30）
-  workflow_dispatch:      # 手動実行も可
+  workflow_dispatch:
 
 jobs:
   monitor:
@@ -11,11 +11,11 @@ jobs:
 
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-      KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
-      KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
+      SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY:         ${{ secrets.SUPABASE_KEY }}
+      CF_ACCOUNT_ID:        ${{ secrets.CF_ACCOUNT_ID }}
+      KV_API_TOKEN_FFDEV:   ${{ secrets.KV_API_TOKEN_FFDEV }}
+      KV_API_TOKEN_FFPROD:  ${{ secrets.KV_API_TOKEN_FFPROD }}
 
     steps:
       - name: ⬇️ リポジトリをチェックアウト
@@ -28,15 +28,6 @@ jobs:
 
       - name: 📦 依存関係をインストール
         run: npm install
-
-      - name: 🔍 Secretsの先頭5文字と長さを出力
-        run: |
-          echo "🔍 CF_ACCOUNT_ID head:" ${CF_ACCOUNT_ID:0:5}
-          echo "🔍 CF_ACCOUNT_ID length:" ${#CF_ACCOUNT_ID}
-          echo "🔍 KV_API_TOKEN_FFDEV head:" ${KV_API_TOKEN_FFDEV:0:5}
-          echo "🔍 KV_API_TOKEN_FFDEV length:" ${#KV_API_TOKEN_FFDEV}
-          echo "🔍 KV_API_TOKEN_FFPROD head:" ${KV_API_TOKEN_FFPROD:0:5}
-          echo "🔍 KV_API_TOKEN_FFPROD length:" ${#KV_API_TOKEN_FFPROD}
 
       - name: 🚀 KV・Supabase 使用状況をチェック
         run: node yml-monitor-kvsb-usage.js

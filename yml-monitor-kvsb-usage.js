@@ -1,20 +1,13 @@
 // yml-monitor-kvsb-usage.js
-// 📊 GitHub ActionsからCloudflare KVとSupabaseの使用状況を監視して通知
+// 📊 KV & Supabase 使用量統合モニタリング（現状はKVのみ有効）
 
-import {
-  getSupabaseCountAndNotify,
-} from "./lib/yml-supabase-utils.js";
-
-import {
-  getKVUsage,
-  notifyIfUsageExceeded,
-} from "./lib/yml-kv-utils.js";
+import { getKVUsage, notifyIfUsageExceeded } from "./lib/yml-kv-utils.js";
+// import { getSupabaseCountAndNotify } from "./lib/yml-supabase-utils.js"; ← 一時停止
 
 const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL;
 
+// 🔐 KVネームスペースの構成（ffdev / ffprod）
 const KV_CONFIGS = [
   {
     kvNamespaceId: "4ebfa42f89f7478888677c5486b6b540",
@@ -30,40 +23,36 @@ const KV_CONFIGS = [
   },
 ];
 
-
-(async () => {
+// ✅ KV使用状況をチェックして通知（Supabaseは現在オフ）
+async function main() {
   for (const config of KV_CONFIGS) {
-    const { kvNamespaceId, isProd, name, apiToken } = config;
+    const { kvNamespaceId, apiToken, isProd, name } = config;
+    let usage;
 
-// 評価終了後削除！！
-const accountId = process.env.CF_ACCOUNT_ID;
-console.log("🔐 CF_ACCOUNT_ID (先頭5):", accountId?.substring(0, 5), "長さ:", accountId?.length);
-const aId = "39914da7b7f259b59d901f0b57cc17cc";
-console.log("🔐 正しいaId:(先頭5):", aId?.substring(0, 5), "長さ:", aId?.length);
-
-console.log("🧩 KvNamespace ID (先頭5):", kvNamespaceId?.substring(0, 5), "長さ:", kvNamespaceId?.length);
-
-console.log("🔐 FFDEV  Token (先頭5):", process.env.KV_API_TOKEN_FFDEV?.substring(0, 5), "長さ:", process.env.KV_API_TOKEN_FFDEV?.length);
-console.log("🔐 FFPROD Token (先頭5):", process.env.KV_API_TOKEN_FFPROD?.substring(0, 5), "長さ:", process.env.KV_API_TOKEN_FFPROD?.length);
-
-
-
-    const usage = await getKVUsage(kvNamespaceId, CF_ACCOUNT_ID, apiToken);
-    if (!usage) {
-      console.error(`❌ [${name}] 使用量取得失敗`);
-      continue;
+    try {
+      usage = await getKVUsage(kvNamespaceId, CF_ACCOUNT_ID, apiToken);
+    } catch (err) {
+      console.error(`❌ ${name} のKV使用量取得に失敗:`, err.message);
+      continue; // 次のネームスペースへ
     }
 
+    // 通知判定・送信
     await notifyIfUsageExceeded({
       usage,
-      kvName: name,
       isProd,
+      kvName: name,
       DISCORD_WEBHOOK_URL,
     });
-
-    const result = await getSupabaseCountAndNotify({ isProd, kvName: name });
-    if (result.status !== "ok") {
-      console.error(`❌ [${name}] Supabase件数取得失敗: ${result.error}`);
-    }
   }
-})();
+
+  // ✅ Supabase部分は後日再開
+  /*
+  try {
+    await getSupabaseCountAndNotify();
+  } catch (err) {
+    console.error("❌ Supabaseカウント取得に失敗:", err.message);
+  }
+  */
+}
+
+main();
