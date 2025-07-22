@@ -98,24 +98,6 @@ async function fetchKVUsage(name, namespaceId, token, env) {
 
 
 /**
- * Discord Webhook へメッセージを送信します。
- * @param {string} webhookUrl - Webhook URL
- * @param {string} message - 通知メッセージ本文
- */
-async function sendDiscordNotification(webhookUrl, message) {
-  const payload = { content: message };
-  const res = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    console.warn(`⚠️ Discord通知失敗: ${res.status}`);
-  }
-}
-
-/**
  * 通知用の整形済みメッセージを作成します。
  * @param {Array} results - 使用率が80%を超えたKV一覧
  * @param {string} time - JSTフォーマット済み時刻
