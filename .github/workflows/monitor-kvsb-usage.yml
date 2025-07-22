@@ -11,17 +11,20 @@ on:
 jobs:
   check-usage:
     runs-on: ubuntu-latest
+    env:
+      KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
+      KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
 
     steps:
       - name: 📦 リポジトリをチェックアウト
         uses: actions/checkout@v4
 
       - name: 🚀 スクリプト実行（KV & Supabase 監視）
+        run: |
+          pwd
+          ls -R
         run: node yml-monitor-kvsb-usage.js
-        env:
-          KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
-          KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
