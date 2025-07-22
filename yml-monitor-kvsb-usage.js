@@ -1,4 +1,3 @@
-// yml-monitor-kvsb-usage.js
 // 📄 yml-monitor-kvsb-usage.js
 // Cloudflare KV（ffprod / ffdev）と Supabase の使用量を監視し、
 // 80%を超えた場合は Discord へ通知し、GitHub Actions を異常終了させます。
