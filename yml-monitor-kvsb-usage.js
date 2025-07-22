@@ -1,15 +1,14 @@
 // 📄 yml-monitor-kvsb-usage.js
-// Cloudflare KV（ffprod / ffdev）と Supabase の使用量を監視し、
-// 80%を超えた場合は Discord へ通知し、GitHub Actions を異常終了させます。
-// 実行元は GitHub Actions の monitor-kvsb-usage.yml（毎日 JST 09:30 実行）です。
+// GitHub Actions (monitor-kvsb-usage.yml) により、毎日 JST 09:30（= UTC 00:30）に実行されます。
+// Cloudflare Workers の KV 使用量（ffdev / ffprod）および Supabase の月次書き込み件数を監視。
+// いずれかが 80% を超えた場合は Discord に通知し、ジョブを異常終了させます。
 
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
-// ====================== 🟦 Supabase関連 ======================
+// ====================== 🔷 Supabase関連処理 ======================
 
 /**
- * Supabase の月次カウントキー（writeCount:YYYY-MM）を JST で作成します。
- * 例: writeCount:2025-07
+ * 現在の日本時間を基に Supabase のカウントキーを生成（形式：writeCount:YYYY-MM）
  */
 function getCurrentMonthKeyJST() {
   const date = new Date(new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }));
@@ -19,9 +18,9 @@ function getCurrentMonthKeyJST() {
 }
 
 /**
- * Supabase の月次書き込み件数を取得し、上限10000件に対する使用率を計算します。
- * @param {object} env - 環境変数 (SUPABASE_URL, SUPABASE_KEY)
- * @returns {object} 使用率などの情報を含むオブジェクト
+ * Supabase の月次書き込み件数を取得し、使用率を計算
+ * @param {object} env - 環境変数（SUPABASE_URL, SUPABASE_KEY）
+ * @returns {object} 結果 { type, count, max, percent, key }
  */
 async function getSupabaseWriteCount(env) {
   const url = `${env.SUPABASE_URL}/rest/v1/rpc/get_kv_count`;
@@ -31,36 +30,37 @@ async function getSupabaseWriteCount(env) {
     'Content-Type': 'application/json'
   };
   const key = getCurrentMonthKeyJST();
-  const body = JSON.stringify({ key });
 
-  const res = await fetch(url, { method: 'POST', headers, body });
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ key })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`❌ Supabase取得失敗: ${res.status} - ${err}`);
+  }
+
   const json = await res.json();
   const count = parseInt(json?.count ?? 0);
   const max = 10000;
   const percent = Math.round((count / max) * 100);
 
-  return {
-    type: 'supabase',
-    key,
-    count,
-    max,
-    percent
-  };
+  return { type: 'supabase', count, max, percent, key };
 }
 
-// ====================== 🟥 KV関連 ======================
+// ====================== 🔴 Cloudflare KV関連 ======================
 
 /**
- * Cloudflare KVネームスペースの使用状況を取得します。
- * @param {string} name - 環境名（ffdev / ffprod）
- * @param {string} namespaceId - 対象KVネームスペースのID
+ * Cloudflare KV使用量を取得し、使用率を計算（Storage容量ベース）
+ * @param {string} name - ffdev または ffprod
+ * @param {string} namespaceId - 対象のKVネームスペースID
  * @param {string} token - Cloudflare APIトークン
- * @param {object} env - 環境変数（CF_ACCOUNT_ID を含む）
+ * @param {object} env - 環境変数（CF_ACCOUNT_ID）
  */
 async function fetchKVUsage(name, namespaceId, token, env) {
-  const accountId = env.CF_ACCOUNT_ID;
-
-  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/usage`;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/storage/kv/namespaces/${namespaceId}/usage`;
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -70,34 +70,33 @@ async function fetchKVUsage(name, namespaceId, token, env) {
   const json = await res.json();
 
   if (!json.success) {
-    console.warn(`⚠️ KV(${name}) 取得失敗`, json.errors);
+    console.warn(`⚠️ KV(${name}) 使用量取得失敗`, json.errors);
     return null;
   }
 
-  const usage = json.result;
-  const percent = Math.round((usage.storage.list_usage / 1048576) / 1024 * 100); // KB → GB → %
+  const u = json.result;
+  const percent = Math.round((u.storage?.list_usage ?? 0) / 1048576 / 1024 * 100); // KB → GB → %
 
   return {
     type: 'kv',
     name,
     percent,
-    usage
+    usage: u
   };
 }
 
-// ====================== --- 共通関数：Discord通知 --- ======================
+// ====================== 📢 共通処理（今はDiscord通知関連とタイムスタンプ作成） ======================
 
 /**
- * Discord Webhook へメッセージを送信します。
+ * Discord Webhookに整形済みメッセージを送信
  * @param {string} webhookUrl - Webhook URL
- * @param {string} message - 通知メッセージ本文
+ * @param {string} message - 本文
  */
 async function sendDiscordNotification(webhookUrl, message) {
-  const payload = { content: message };
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ content: message })
   });
 
   if (!res.ok) {
@@ -106,9 +105,9 @@ async function sendDiscordNotification(webhookUrl, message) {
 }
 
 /**
- * 通知用の整形済みメッセージを作成します。
- * @param {Array} results - 使用率が80%を超えたサービス一覧
- * @param {string} time - JSTフォーマット済み時刻
+ * アラート内容をDiscord投稿用に成形
+ * @param {Array} results - 使用率超過した項目の一覧
+ * @param {string} time - JST時刻文字列
  */
 function createAlertMessage(results, time) {
   let msg = `⚠️ 使用量が80%を超えました！（${time} JST）\n`;
@@ -122,18 +121,15 @@ function createAlertMessage(results, time) {
              `📝 Write: ${u.writes} / ${u.writes_limit}\n` +
              `🗑️ Delete: ${u.deletes} / ${u.deletes_limit}\n` +
              `📋 List: ${u.list} / ${u.list_limit}\n` +
-             `📦 Storage: ${Math.round(u.storage.list_usage / 1024)} KB / 1 GB（${r.percent}%）\n`;
+             `📦 Storage: ${Math.round((u.storage?.list_usage ?? 0) / 1024)} KB / 1 GB（${r.percent}%）\n`;
     }
   }
 
   return msg;
 }
 
-// ====================== --- 共通関数：タイムスタンプ作成機能 --- ======================
-
 /**
- * JST（日本時間）で現在の時刻を「YYYY/MM/DD H:mm:ss」形式で返します。
- * 時（H）は先頭ゼロなし。
+ * JST（日本時間）で現在の時刻を「YYYY/MM/DD H:mm:ss」形式で返す
  * 例: 2025/07/21 6:10:15
  */
 function getFormattedJST() {
@@ -142,7 +138,7 @@ function getFormattedJST() {
   const yyyy = jst.getFullYear();
   const mm = String(jst.getMonth() + 1).padStart(2, '0');
   const dd = String(jst.getDate()).padStart(2, '0');
-  const h = jst.getHours(); // ← 先頭0なし
+  const h = jst.getHours();
   const mi = String(jst.getMinutes()).padStart(2, '0');
   const ss = String(jst.getSeconds()).padStart(2, '0');
   return `${yyyy}/${mm}/${dd} ${h}:${mi}:${ss}`;
@@ -164,13 +160,17 @@ const run = async () => {
     if (usage?.percent >= 80) results.push(usage);
   }
 
-  const supa = await getSupabaseWriteCount(env);
-  if (supa.percent >= 80) results.push(supa);
+  try {
+    const supa = await getSupabaseWriteCount(env);
+    if (supa.percent >= 80) results.push(supa);
+  } catch (err) {
+    console.warn("⚠️ Supabase 取得失敗:", err.message);
+  }
 
   if (results.length > 0) {
     const time = getFormattedJST();
-    const message = createAlertMessage(results, time);
-    await sendDiscordNotification(env.DISCORD_WEBHOOK_URL, message);
+    const msg = createAlertMessage(results, time);
+    await sendDiscordNotification(env.DISCORD_WEBHOOK_URL, msg);
     throw new Error("❌ 使用量が80%を超えたため異常終了");
   } else {
     console.log("✅ 全使用量は正常範囲です（<80%）");
