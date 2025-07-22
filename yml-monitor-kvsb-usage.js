@@ -65,6 +65,9 @@ async function fetchKVUsage(name, namespaceId, token, env) {
   const accountId = env.CF_ACCOUNT_ID;
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/usage`;
 
+  // 評価完了時削除！！
+  console.log(`🔍 KV(${name}) 呼び出しURL: ${url}`);
+
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -133,6 +136,8 @@ function createAlertMessage(results, time) {
 
   return msg;
 }
+
+
 // ====================== 🕒 JST時間ヘルパー ======================
 
 /**
