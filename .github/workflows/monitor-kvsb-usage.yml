@@ -16,14 +16,6 @@ jobs:
       - name: 📦 リポジトリをチェックアウト
         uses: actions/checkout@v4
 
-      - name: 🔍 現在の作業ディレクトリとファイル一覧
-        run: |
-          echo "📂 カレントディレクトリ:"
-          pwd
-          echo ""
-          echo "📄 ファイル一覧（再帰的）:"
-          ls -R
-
       - name: 🚀 スクリプト実行（KV & Supabase 監視）
         env:
           KV_API_TOKEN_FFDEV: ${{ secrets.KV_API_TOKEN_FFDEV }}
@@ -32,5 +24,4 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-        run: node yml-monitor-kvsb-usage.js
-        working-directory: ./inuichiba-ffscripts
+        run: node /home/runner/work/inuichiba-ffscripts/inuichiba-ffscripts/yml-monitor-kvsb-usage.js
