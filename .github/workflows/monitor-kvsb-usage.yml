@@ -29,4 +29,3 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: node yml-monitor-kvsb-usage.js
-        working-directory: ./inuichiba-ffscripts
