@@ -39,10 +39,10 @@ const MAX_DELETE = 500;
       const groupId = prefix; // 例: "C" → groupIdが "C" で始まる(グループラインのこと)
 
       const res = await fetch(apiUrl, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           kind: "del",
@@ -52,13 +52,11 @@ const MAX_DELETE = 500;
         }),
       });
 
-      const result = await res.json();
+      const text = await res.text();
 
-      if (res.ok) {
-        console.log(`🗑️ 削除成功: ${result.deleted}件 (groupId prefix="${prefix}")`);
-        deleted += result.deleted;
-      } else {
-        console.error(`❌ 削除失敗 (${res.status}): ${result.error || result}`);
+      if (!res.ok) {
+        console.error(`❌ APIエラー: ${res.status} - ${text}`);
+        throw new Error("API request failed");
       }
     }
 
