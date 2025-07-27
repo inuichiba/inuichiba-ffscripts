@@ -17,16 +17,21 @@ jobs:
   delete-kv-keys:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 20
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Install dependencies
         run: npm install
+
+      - name: Run kvapi-delete-groupkeys.js
+        run: node kvapi-delete-groupkeys.js
 
       - name: Delete C-prefixed KV keys
         run: node kvapi-delete-groupkeys.js
