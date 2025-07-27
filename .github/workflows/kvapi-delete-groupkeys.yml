@@ -24,7 +24,7 @@ jobs:
             -H "Authorization: Bearer $KV_API_TOKEN_FFPROD" \
             -d '{
               "kind": "groupdel",
-              "groupIdPrefix": "C"
+              "groupId": "C"
             }'
         env:
           KV_API_URL_FFPROD: ${{ secrets.KV_API_URL_FFPROD }}
