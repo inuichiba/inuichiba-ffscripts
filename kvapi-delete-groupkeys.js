@@ -10,11 +10,8 @@
 // 🛠️ メンテナンス性向上のため、対応 groupId の条件（C / R / default）にはコメントを明記。
 // 🚫 手動実行時は自己責任で環境変数を設定してください（推奨しません）。
 
-
 import fetch from "node-fetch";
 
-// ✅ Cで始まるKVキー（グループ用）を最大500件削除します
-// 🔒 対象は ffprod 環境の KV_API を使用
 const kvApiUrl = process.env.KV_API_URL_FFPROD;
 const token = process.env.KV_API_TOKEN_FFPROD;
 
@@ -23,26 +20,30 @@ if (!kvApiUrl || !token) {
   process.exit(1);
 }
 
-// 🔄 削除対象のgroupId（先頭文字）を必要に応じて変更可能
-// const groupPrefixes = ["C"]; // ← グループ（例: Cabcdef...）
-// const groupPrefixes = ["R"]; // ← ルーム（例: Rabcdef...）
-// const groupPrefixes = ["default"]; // ← 1対1のデフォルトグループ（例: default_Uxxxx...）
-const groupPrefixes = ["C"]; // 他に "R" や "default" にも対応可能（※下記コメント参照）
+// ✅ 対象のgroupIdプレフィックス（変更可能）
+// const groupPrefixes = ["C"];       // ← グループ用
+// const groupPrefixes = ["R"];       // ← ルーム用
+// const groupPrefixes = ["default"]; // ← 1対1（default_Uxxxxx）
+const groupPrefixes = ["C"];
 
-// ✅ 最大件数（1日あたり）を設定（GitHub Actions想定）
 const MAX_DELETE = 500;
 
 (async () => {
   try {
     let deleted = 0;
+
     for (const prefix of groupPrefixes) {
-      const groupId = prefix; // 例: "C" → groupIdが "C" で始まる(グループラインのこと)
+      const payload = {
+        kind: "del",
+        groupId: prefix,
+        limit: MAX_DELETE,
+      };
 
       const res = await fetch(kvApiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,  // ← ここが重要！
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -53,10 +54,12 @@ const MAX_DELETE = 500;
         console.error(`❌ APIエラー: ${res.status} - ${text}`);
         throw new Error("API request failed");
       }
-    };
+
+      const result = JSON.parse(text);
+      deleted += result.deleted || 0;
+    }
 
     console.log(`✅ 合計 ${deleted} 件のKVキーを削除しました`);
-
   } catch (err) {
     console.error("❌ エラー:", err.message || err);
     process.exit(1);
