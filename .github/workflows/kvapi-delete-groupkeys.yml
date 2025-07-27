@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Delete KV keys with prefix "C" via kv-api.js
         run: |
-          curl.exe -X POST "$KV_API_URL_FFPROD" \
+          curl -X POST "$KV_API_URL_FFPROD" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $KV_API_TOKEN_FFPROD" \
             -d '{
