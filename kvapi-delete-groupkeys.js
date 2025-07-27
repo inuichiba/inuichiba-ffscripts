@@ -15,10 +15,10 @@ import fetch from "node-fetch";
 
 // ✅ Cで始まるKVキー（グループ用）を最大500件削除します
 // 🔒 対象は ffprod 環境の KV_API を使用
-const apiUrl = process.env.KV_API_URL_FFPROD;
+const kvApiUrl = process.env.KV_API_URL_FFPROD;
 const token = process.env.KV_API_TOKEN_FFPROD;
 
-if (!apiUrl || !token) {
+if (!kvApiUrl || !token) {
   console.error("❌ KV_API_URL_FFPROD または KV_API_TOKEN_FFPROD が未設定です");
   process.exit(1);
 }
@@ -38,18 +38,13 @@ const MAX_DELETE = 500;
     for (const prefix of groupPrefixes) {
       const groupId = prefix; // 例: "C" → groupIdが "C" で始まる(グループラインのこと)
 
-      const res = await fetch(apiUrl, {
-        method: 'POST',
+      const res = await fetch(kvApiUrl, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,  // ← ここが重要！
         },
-        body: JSON.stringify({
-          kind: "del",
-          groupId,  // C, R, default などに対応（API側でfilter）
-          ttl: 0,
-          limit: MAX_DELETE
-        }),
+        body: JSON.stringify(payload),
       });
 
       const text = await res.text();
@@ -58,7 +53,7 @@ const MAX_DELETE = 500;
         console.error(`❌ APIエラー: ${res.status} - ${text}`);
         throw new Error("API request failed");
       }
-    }
+    };
 
     console.log(`✅ 合計 ${deleted} 件のKVキーを削除しました`);
 
