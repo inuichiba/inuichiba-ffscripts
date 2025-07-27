@@ -8,33 +8,37 @@
 # 🚫 通常は手動実行しませんが、必要に応じて workflow_dispatch を使って評価可能です。
 # 🧼 主に Supabase に退避済のデータに対応したクリーンアップ用途です。
 
-name: Delete KV group keys (C-start)
+name: Delete C-prefixed KV keys
 
 on:
   workflow_dispatch:
 
 jobs:
-  delete-kv-keys:
+  delete-group-keys:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
+    steps:
+      # 📦 リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 🧠 Node.js v20 をセットアップ
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      # 📦 依存パッケージをインストール
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
+      # 🚀 Cで始まるKVキーを削除（groupIdの接頭辞が "C" のみ対象）
       - name: Run kvapi-delete-groupkeys.js
-        run: node kvapi-delete-groupkeys.js
-
-      - name: Delete C-prefixed KV keys
         run: node kvapi-delete-groupkeys.js
         env:
           KV_API_URL_FFPROD: ${{ secrets.KV_API_URL_FFPROD }}
           KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
+
+      # ✅ 完了メッセージ
+      - name: Post Checkout repository
+        run: echo "✅ Delete C-prefixed KV keys 完了しました"
