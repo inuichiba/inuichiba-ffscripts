@@ -1,0 +1,35 @@
+# kvapi-delete-groupkeys.yml
+# groupIdがCで始まる(groupラインユーザー)を500件delteする。
+# 課金枠を超えるので、一日1回だけ実行のこと。
+#
+# 📌 このワークフローは自動的に Cloudflare Workers の KV から、
+#     groupId が特定文字で始まるキー（例: C）を削除するスクリプトを定期実行します。
+# 🔒 KV_API_URL_FFPROD および KV_API_TOKEN_FFPROD は GitHub Secrets に登録済みであることが前提です。
+# 🚫 通常は手動実行しませんが、必要に応じて workflow_dispatch を使って評価可能です。
+# 🧼 主に Supabase に退避済のデータに対応したクリーンアップ用途です。
+
+name: Delete KV group keys (C-start)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete-kv-keys:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Delete C-prefixed KV keys
+        run: node kvapi-delete-groupkeys.js
+        env:
+          KV_API_URL_FFPROD: ${{ secrets.KV_API_URL_FFPROD }}
+          KV_API_TOKEN_FFPROD: ${{ secrets.KV_API_TOKEN_FFPROD }}
