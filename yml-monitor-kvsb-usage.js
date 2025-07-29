@@ -15,6 +15,8 @@
  */
 
 import { addMonthCount } from "../inuichiba-ffworkers/src/lib/kvUtils.js";
+import kvUtils from '../inuichiba-ffworkers/src/lib/kvUtils.js';
+
 
 const envName = process.argv[2] || "ffprod"; // デフォルトはffprod
 
