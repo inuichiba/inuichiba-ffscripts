@@ -14,8 +14,16 @@
  * 💡 GitHub Actions から ffprod / ffdev それぞれで定期実行されることを想定
  */
 
-import { addMonthCount, checkKVSum } from "../inuichiba-ffworkers/src/lib/kvUtils.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { createRequire } from "module";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ 動的に kvUtils.js を解決
+const kvUtilsPath = path.join(__dirname, "./inuichiba-ffworkers/src/lib/kvUtils.js");
+const { addMonthCount, checkKVSum } = await import(kvUtilsPath);
 
 const envName = process.argv[2] || "ffprod"; // デフォルトはffprod
 
