@@ -42,7 +42,6 @@ jobs:
 
       - name: 🚦 Run checkKVSum for ${{ matrix.envName }}
         run: node yml-monitor-kvsb-usage.js ${{ matrix.envName }}
-        working-directory: inuichiba-ffscripts
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
