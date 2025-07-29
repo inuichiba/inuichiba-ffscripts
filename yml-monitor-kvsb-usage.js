@@ -15,15 +15,17 @@
  */
 
 import path from "path";
-import { fileURLToPath } from "url";
-import { createRequire } from "module";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ 動的に kvUtils.js を解決
+// ✅ 動的に kvUtils.js を解決（file:// パスに変換）
 const kvUtilsPath = path.join(__dirname, "./inuichiba-ffworkers/src/lib/kvUtils.js");
-const { addMonthCount, checkKVSum } = await import(kvUtilsPath);
+const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
+
+const { addMonthCount, checkKVSum } = await import(kvUtilsUrl);
+
 
 const envName = process.argv[2] || "ffprod"; // デフォルトはffprod
 
