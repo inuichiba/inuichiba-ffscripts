@@ -14,8 +14,8 @@
  * 💡 GitHub Actions から ffprod / ffdev それぞれで定期実行されることを想定
  */
 
-import { addMonthCount } from "./inuichiba-ffworkers/src/lib/kvUtils.js";
-import { getKVReadCount } from './inuichiba-ffworkers/src/lib/kvUtils.js'
+import { addMonthCount, getKVReadCount } from "./inuichiba-ffscripts/inuichiba-ffworkers/src/lib/kvUtils.js";
+
 
 const envName = process.argv[2] || "ffprod"; // デフォルトはffprod
 
