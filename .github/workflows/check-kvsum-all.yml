@@ -1,0 +1,51 @@
+# 📆 KV使用量チェック (ffprod / ffdev)
+#
+# Cloudflare Workers KV の readCount キーを環境別に集計し、
+# 合算してしきい値（80%, 90%, 100%）を超えた場合に Discord 通知を行います。
+#
+# 🛠 yml-monitor-kvsb-usage.js を実行対象とし、GitHub Actions 上で
+# ffprod / ffdev の KV 使用状況を並列にチェックします。
+#
+# - secrets: CF_API_TOKEN_*, CF_ACCOUNT_ID, DISCORD_WEBHOOK_URL
+# - variables: USERS_KV_NAMESPACE_ID_*
+#
+# 🔄 毎日 1 回定期実行（または手動実行可）
+
+name: 🔁 Check KV Read Sum (All Environments)
+
+on:
+  schedule:
+    - cron: '2 2 * * *'  # 毎日11:02 JST
+  workflow_dispatch:
+
+jobs:
+  check-kvsum:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        envName: [ffprod, ffdev]
+
+    name: 🔍 checkKVSum (${{ matrix.envName }})
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚦 Run checkKVSum for ${{ matrix.envName }}
+        run: node inuichiba-ffscripts/yml-monitor-kvsb-usage.js ${{ matrix.envName }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN_FFDEV: ${{ secrets.CF_API_TOKEN_FFDEV }}
+          CF_API_TOKEN_FFPROD: ${{ secrets.CF_API_TOKEN_FFPROD }}
+          USERS_KV_NAMESPACE_ID_FFDEV: 4ebfa42f89f7478888677c5486b6b540
+          USERS_KV_NAMESPACE_ID_FFPROD: 9cc8cd1153a34a66a4e1bf313078664c
