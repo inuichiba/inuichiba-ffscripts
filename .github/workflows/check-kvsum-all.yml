@@ -30,6 +30,12 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
+      - name: 📦 Checkout workers repository
+        uses: actions/checkout@v4
+        with:
+          repository: inuichiba/inuichiba-ffworkers
+          path: inuichiba-ffworkers
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
