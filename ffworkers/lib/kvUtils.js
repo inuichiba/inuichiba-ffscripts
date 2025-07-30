@@ -42,7 +42,7 @@ export async function addMonthCount(env) {
   const sbFlagKey = `supabase_flag:${isProd ? "ffprod" : "ffdev"}:${getUTCDateString().slice(0, 7)}`;
 
   try {
-    const current = getOrInitInt(usersKV, monthKey, (60 * 60 * 24 * 92));
+    const current = await getOrInitInt(usersKV, monthKey, (60 * 60 * 24 * 92));
     if (!isProd) console.log(`📈 KVのSupabase月次件数 取得: 件数=${current}, monthKey=${monthKey}`);
     const newCount = current + 1;
     if (isProd) {
@@ -89,8 +89,8 @@ export async function checkSbSum(env) {
   const KV_SENTINEL = "1";
 
   try {
-    const prod = getOrInitInt(usersKV, keyProd, (60 * 60 * 24 * 92));
-    const dev  = getOrInitInt(usersKV, keyDev,  (60 * 60 * 24 * 92));
+    const prod = await getOrInitInt(usersKV, keyProd, (60 * 60 * 24 * 92));
+    const dev  = await getOrInitInt(usersKV, keyDev,  (60 * 60 * 24 * 92));
     const total = prod + dev;
 
     if (total >= 90000) {
@@ -147,7 +147,7 @@ export async function incrementKVReadCount(env) {
 
   try {
     // ✅ KV日次件数取得と計算(KV日次件数キーがなかったら0で初期化して作る)
-    const current = getOrInitInt(usersKV, todayKey, (60 * 60 * 24 * 3));
+    const current = await getOrInitInt(usersKV, todayKey, (60 * 60 * 24 * 3));
     if (!isProd) console.log(`📖 KV日次件数 取得: 件数=${current}, todaykey=${todayKey}`);
 
     // ✅ 加算した値を保存（TTLは3日間）
@@ -250,8 +250,8 @@ export async function checkKVSum(env) {
   const KV_SENTINEL = "1";
 
   try {
-    const prod = getOrInitInt(usersKV, keyProd, (60 * 60 * 24 * 3));
-    const dev  = getOrInitInt(usersKV, keyDev,  (60 * 60 * 24 * 3));
+    const prod = await getOrInitInt(usersKV, keyProd, (60 * 60 * 24 * 3));
+    const dev  = await getOrInitInt(usersKV, keyDev,  (60 * 60 * 24 * 3));
     const total = prod + dev;
 
     // 🚧 100%（手遅れ）→ 💸
