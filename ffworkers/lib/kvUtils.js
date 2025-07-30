@@ -1,7 +1,4 @@
-// inuichiba-ffscripts\ffworkers\kvUtils.js
-// yml-monitor-kvsb-usage.jsのためにコピーしてある
-// そのためimportのディレクトリ階層がちょっと違うので修正注意
-
+// lib/kvUtils.js
 import { getEnv } from "./env.js";
 import { getFormattedJST } from "./getFormattedJST.js";
 
@@ -45,11 +42,9 @@ export async function addMonthCount(env) {
   const sbFlagKey = `supabase_flag:${isProd ? "ffprod" : "ffdev"}:${getUTCDateString().slice(0, 7)}`;
 
   try {
-    const currentValue = await usersKV.get(monthKey);
-    const current = parseInt(currentValue || "0", 10);
+    const current = getOrInitInt(usersKV, monthKey, (60 * 60 * 24 * 92));
     if (!isProd) console.log(`📈 KVのSupabase月次件数 取得: 件数=${current}, monthKey=${monthKey}`);
     const newCount = current + 1;
-    await usersKV.put(monthKey, newCount.toString());
     if (isProd) {
       await usersKV.put(monthKey, newCount.toString());  // ffprodは永続保存
     } else {
@@ -94,15 +89,13 @@ export async function checkSbSum(env) {
   const KV_SENTINEL = "1";
 
   try {
-    const prodvalue = await usersKV.get(keyProd);
-    const prod = parseInt(prodvalue || "0", 10);
-    const devvalue  = await usersKV.get(keyDev);
-    const dev  = parseInt(devvalue || "0", 10);
+    const prod = getOrInitInt(usersKV, keyProd, (60 * 60 * 24 * 92));
+    const dev  = getOrInitInt(usersKV, keyDev,  (60 * 60 * 24 * 92));
     const total = prod + dev;
 
     if (total >= 90000) {
       const notified = await usersKV.get(notifyFlag90);
-      if (!notified) {
+      if (notified !== "string") {
         // ✅ 通知済フラグをセット（90日）
         await usersKV.put(notifyFlag90, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 92 }); // 3ヶ月保存
         // ✅ 書き込み停止フラグもセット（同様に3ヶ月）
@@ -153,9 +146,8 @@ export async function incrementKVReadCount(env) {
   const KV_DAILY_LIMIT     = 100000; // 手遅れ（かっきーん）10万件以上
 
   try {
-    // ✅ KV日次件数取得と計算(KV日次件数キーがなかったら0とする)
-    const currentValue = await usersKV.get(todayKey);
-    const current = parseInt(currentValue || "0", 10);
+    // ✅ KV日次件数取得と計算(KV日次件数キーがなかったら0で初期化して作る)
+    const current = getOrInitInt(usersKV, todayKey, (60 * 60 * 24 * 3));
     if (!isProd) console.log(`📖 KV日次件数 取得: 件数=${current}, todaykey=${todayKey}`);
 
     // ✅ 加算した値を保存（TTLは3日間）
@@ -167,7 +159,7 @@ export async function incrementKVReadCount(env) {
     // 🚧 100%（手遅れ）→ 💸
     if (newCount >= KV_DAILY_LIMIT) {
       const notified = await usersKV.get(notifyFlag100);
-      if (!notified) {
+      if (notified !== "string") {
         await usersKV.put(notifyFlag100, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,       "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -192,7 +184,7 @@ export async function incrementKVReadCount(env) {
     // ✅ もう一度Discord通知：緊急フェーズ(90,000件/100,000件 /日)
     if (newCount >= KV_DAILY_EMERGENCY) {
       const notified = await usersKV.get(notifyFlag90);
-      if (!notified) {
+      if (notified !== "string") {
         await usersKV.put(notifyFlag90, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -213,7 +205,7 @@ export async function incrementKVReadCount(env) {
     // ✅ もう一度Discord通知：警戒フェーズ(80,000件/100,000件 /日)
     if (newCount >= KV_DAILY_THRESHOLD) {
       const notified = await usersKV.get(notifyFlag80);
-      if (!notified) {
+      if (notified !== "string") {
         await usersKV.put(notifyFlag80, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -239,7 +231,7 @@ export async function incrementKVReadCount(env) {
  * 80% / 90% を超えたら1日1回だけ通知し、両環境のフラグに "threshold" をセットする
  * 通知済みの判定には関数内だけで使う内部フラグ（"kv_notify_sent:total80/90:YYYY-MM-DD"）を使う
  *
- * @param {object} env - 環境変数（usersKV などを含む）
+ * @param {isProd, object} env - 環境変数（usersKV などを含む）
  */
 export async function checkKVSum(env) {
   const { usersKV } = getEnv(env);
@@ -251,23 +243,50 @@ export async function checkKVSum(env) {
   const flagDev  = `kv_flag:ffdev:${today}`;
 
   // ✅ 通知済み確認用の内部フラグ（値は "1" で十分）
-  const notifyFlag80 = `kv_notify_sent:total80:${today}`;
-  const notifyFlag90 = `kv_notify_sent:total90:${today}`;
+  const notifyFlag80  = `kv_notify_sent:total80:${today}`;
+  const notifyFlag90  = `kv_notify_sent:total90:${today}`;
+  const notifyFlag100 = `kv_notify_sent:total100:${today}`;
   // SENTINEL：自分は存在するよの意味
   const KV_SENTINEL = "1";
 
   try {
-    const prodvalue = await usersKV.get(keyProd);
-    const prod  = parseInt(prodvalue || "0", 10);
-    const devvalue  = await usersKV.get(keyDev);
-    const dev   = parseInt(devvalue  || "0", 10);
+    const prod = getOrInitInt(usersKV, keyProd, (60 * 60 * 24 * 3));
+    const dev  = getOrInitInt(usersKV, keyDev,  (60 * 60 * 24 * 3));
     const total = prod + dev;
+
+    // 🚧 100%（手遅れ）→ 💸
+    if (total >= 100000) {
+      const notified = await usersKV.get(notifyFlag100);
+      if (!notified) {
+        await usersKV.put(notifyFlag100, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
+        await usersKV.put(flagProd,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
+        await usersKV.put(flagDev,       "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
+
+        // ffProdで出ることを案じているので、ログは出す
+        console.warn(`🚨 KV日次件数(Read)のffprodとffdevとの合算が100%を超過しました → 課金フェーズになりました`);
+        const message = `🚨 KV日次件数(Read)のffprodとffdevとの合算が100%を超過しました！\n` +
+        `📦 ffprod: ${prod} 件  📦 ffdev: ${dev} 件\n` +
+        `💸 2025年7月時点での課金額の例（Cloudflare Workers KV）：\n` +
+        `   💸 Read 超過 … $0.50 / 百万件\n` +
+        `   💸 Write 超過 … $5.00 / 百万件\n` +
+        `   💸 Storage 超過 … $0.50 / GB・月\n` +
+        `   💡 例）\n` +
+        `      ・Read が10万件超過 → 約 $0.05 / 日\n` +
+        `      ・Write が1,000件超過 → 約 $0.005 / 日\n` +
+        `💸 従量課金制のため、超過数が増えるほど請求額も比例して増えていきます。`;
+        await notifyDiscord(env, message, "tatol");  // Discordに通知する
+      }
+      return; // 10万件を見てるんだから9万件を見る必要はない
+    }
+
 
     // 🚨 90%超えの確認が先（初回のみ通知）
     if (total >= 90000) {
       const notified = await usersKV.get(notifyFlag90);
-      if (!notified) {
-        await usersKV.put(notifyFlag90,   KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
+      if (notified !== "string") {
+        await usersKV.put(notifyFlag90, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
+        await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
+        await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
 
         // ffProdで出ることを案じているので、ログは出す
         console.warn("🚨 KV日次件数(Read)のffprodとffdevとの合算が90%を超過しました → 禁忌フェーズです。Webhookの停止による完全遮断も検討してください");
@@ -285,7 +304,7 @@ export async function checkKVSum(env) {
     // 🚨 80%超え（初回のみ通知）
     if (total >= 80000) {
       const notified = await usersKV.get(notifyFlag80);
-      if (!notified) {
+      if (notified !== "string") {
         await usersKV.put(notifyFlag80, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -369,4 +388,28 @@ export async function isCongested(env) {
     return true; // エラー時は「混雑中」とみなす
   }
 }
+
+
+/**
+ * GETして、キーが存在しなければdefaultValue（例: "0"）で初期化してPUTする
+ * @param {object} usersKV - Cloudflare KV namespace
+ * @param {string} key - KVキー名
+ * @param {number} TTL - TTL（秒単位）。0のときは永続。
+ * @param {string} defaultValue - 初期値（文字列）。省略時は "0"
+ * @returns {number} - 取得または初期化された数値（10進数）
+ */
+async function getOrInitInt(usersKV, key, TTL, defaultValue = "0") {
+  let value = await usersKV.get(key);
+  if (typeof value !== "string") {
+    // 存在しなければ初期化
+    value = defaultValue;
+    if (TTL === 0) {
+      await usersKV.put(key, defaultValue);  // 永続保存
+    } else {
+      await usersKV.put(key, defaultValue, { expirationTtl: TTL });  // TTL付き
+    }
+  }
+  return parseInt(value, 10);
+}
+
 

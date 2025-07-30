@@ -44,5 +44,10 @@ const env = {
     : process.env.USERS_KV_NAMESPACE_ID_FFDEV,
 };
 
-// 🟢 KV合算チェックを実行
-await checkKVSum(env);
+try {
+  // 🟢 KV合算チェックを実行
+  await checkKVSum(env);
+} catch(err) {
+  console.error("⚠️ 合算KV日次件数チェックに失敗:", err);
+  process.exit(1); // ← 成功でも続行しないように強制終了
+}
