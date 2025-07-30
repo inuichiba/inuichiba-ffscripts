@@ -20,8 +20,8 @@ import { fileURLToPath, pathToFileURL } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ 動的に kvUtils.js を解決（file:// パスに変換）
-const kvUtilsPath = path.join(__dirname, "./inuichiba-ffworkers/src/lib/kvUtils.js");
+// ✅ 修正：1つ上の階層にある inuichiba-ffworkers を参照
+const kvUtilsPath = path.join(__dirname, "../inuichiba-ffworkers/src/lib/kvUtils.js");
 const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
 
 const { addMonthCount, checkKVSum } = await import(kvUtilsUrl);
