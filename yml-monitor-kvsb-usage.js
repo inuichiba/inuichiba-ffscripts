@@ -17,18 +17,15 @@
  */
 
 import path from "path";
-import { pathToFileURL } from "url";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
-// __dirname を ESMで再定義
+// __dirname の再定義 (ESM用)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// KVユーティリティの相対パス（GitHub Actions内から実行される想定）
+// ✅ 相対パスで kvUtils を指定（ffscripts/ffworkers/lib/kvUtils.js）
 const kvUtilsPath = path.join(__dirname, "./ffworkers/lib/kvUtils.js");
 const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
-
-// ✅ kvUtilsを動的importで読み込む（依存関係を保ったままOK）
 const { checkKVSum } = await import(kvUtilsUrl);
 
 // 🌱 コマンド引数（例: ffprod）を取得（省略時は "ffprod"）

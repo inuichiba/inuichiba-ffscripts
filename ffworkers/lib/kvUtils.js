@@ -1,6 +1,9 @@
-// lib/kvUtils.js
+// inuichiba-ffscripts\ffworkers\kvUtils.js
+// yml-monitor-kvsb-usage.jsのためにコピーしてある
+// そのためimportのディレクトリ階層がちょっと違うので修正注意
+
 import { getEnv } from "./env.js";
-import { getFormattedJST } from "./saveUserInfo.js";
+import { getFormattedJST } from "./getFormattedJST.js";
 
 
 /**
