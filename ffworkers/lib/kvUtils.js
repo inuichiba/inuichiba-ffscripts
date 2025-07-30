@@ -95,7 +95,7 @@ export async function checkSbSum(env) {
 
     if (total >= 90000) {
       const notified = await usersKV.get(notifyFlag90);
-      if (notified !== "string") {
+      if (typeof notified !== "string") {
         // ✅ 通知済フラグをセット（90日）
         await usersKV.put(notifyFlag90, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 92 }); // 3ヶ月保存
         // ✅ 書き込み停止フラグもセット（同様に3ヶ月）
@@ -146,7 +146,7 @@ export async function incrementKVReadCount(env) {
   const KV_DAILY_LIMIT     = 100000; // 手遅れ（かっきーん）10万件以上
 
   try {
-    // ✅ KV日次件数取得と計算(KV日次件数キーがなかったら0で初期化して作る)
+    // ✅ KV日次件数取得と計算(KV日次件数キーがなかったら"0"で初期化して作る)
     const current = await getOrInitInt(usersKV, todayKey, (60 * 60 * 24 * 3));
     if (!isProd) console.log(`📖 KV日次件数 取得: 件数=${current}, todaykey=${todayKey}`);
 
@@ -159,7 +159,7 @@ export async function incrementKVReadCount(env) {
     // 🚧 100%（手遅れ）→ 💸
     if (newCount >= KV_DAILY_LIMIT) {
       const notified = await usersKV.get(notifyFlag100);
-      if (notified !== "string") {
+      if (typeof notified !== "string") {
         await usersKV.put(notifyFlag100, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,       "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -184,7 +184,7 @@ export async function incrementKVReadCount(env) {
     // ✅ もう一度Discord通知：緊急フェーズ(90,000件/100,000件 /日)
     if (newCount >= KV_DAILY_EMERGENCY) {
       const notified = await usersKV.get(notifyFlag90);
-      if (notified !== "string") {
+      if (typeof notified !== "string") {
         await usersKV.put(notifyFlag90, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -205,7 +205,7 @@ export async function incrementKVReadCount(env) {
     // ✅ もう一度Discord通知：警戒フェーズ(80,000件/100,000件 /日)
     if (newCount >= KV_DAILY_THRESHOLD) {
       const notified = await usersKV.get(notifyFlag80);
-      if (notified !== "string") {
+      if (typeof notified !== "string") {
         await usersKV.put(notifyFlag80, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -257,7 +257,7 @@ export async function checkKVSum(env) {
     // 🚧 100%（手遅れ）→ 💸
     if (total >= 100000) {
       const notified = await usersKV.get(notifyFlag100);
-      if (!notified) {
+      if (typeof notified !== "string") {
         await usersKV.put(notifyFlag100, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,       "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -283,7 +283,7 @@ export async function checkKVSum(env) {
     // 🚨 90%超えの確認が先（初回のみ通知）
     if (total >= 90000) {
       const notified = await usersKV.get(notifyFlag90);
-      if (notified !== "string") {
+      if (typeof notified !== "string") {
         await usersKV.put(notifyFlag90, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -304,7 +304,7 @@ export async function checkKVSum(env) {
     // 🚨 80%超え（初回のみ通知）
     if (total >= 80000) {
       const notified = await usersKV.get(notifyFlag80);
-      if (notified !== "string") {
+      if (typeof notified !== "string") {
         await usersKV.put(notifyFlag80, KV_SENTINEL, { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagProd,     "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
         await usersKV.put(flagDev,      "threshold", { expirationTtl: 60 * 60 * 24 * 3 });
@@ -409,7 +409,7 @@ async function getOrInitInt(usersKV, key, TTL, defaultValue = "0") {
       await usersKV.put(key, defaultValue, { expirationTtl: TTL });  // TTL付き
     }
   }
-  return parseInt(value, 10);
+  return parseInt(value, 10);   // 10進数の数値で戻す
 }
 
 
