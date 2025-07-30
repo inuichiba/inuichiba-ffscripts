@@ -21,7 +21,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ✅ 修正済み：1階層上の inuichiba-ffworkers を参照
-const kvUtilsPath = path.join(__dirname, "../inuichiba-ffworkers/src/lib/kvUtils.js");
+const kvUtilsPath = path.join(__dirname, "../../inuichiba-ffworkers/src/lib/kvUtils.js");
 const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
 
 // ✅ file:// URL指定でインポート
