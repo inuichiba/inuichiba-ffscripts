@@ -16,6 +16,15 @@ name: 🔍 KV/Supabase Monitor
 
 on:
   workflow_dispatch:
+    inputs:
+      targetEnv:
+        description: "Choose environment"
+        required: true
+        default: "ffprod"
+        type: choice
+        options:
+          - ffprod
+          - ffdev
 
 jobs:
   checkkVSum:
@@ -45,7 +54,7 @@ jobs:
         run: npm ci
 
       - name: 🚦 Run checkKVSum for ${{ matrix.envName }}
-        run: node yml-monitor-kvsb-usage.js ${{ matrix.envName }}
+        run: node yml-monitor-kvsb-usage.js ${{ github.event.inputs.targetEnv }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
