@@ -25,7 +25,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // KVユーティリティの相対パス（GitHub Actions内から実行される想定）
-const kvUtilsPath = path.join(__dirname, "../inuichiba-ffworkers/src/lib/kvUtils.js");
+const kvUtilsPath = path.join(__dirname, "./ffworkers/lib/kvUtils.js");
 const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
 
 // ✅ kvUtilsを動的importで読み込む（依存関係を保ったままOK）
