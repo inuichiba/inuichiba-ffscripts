@@ -15,21 +15,22 @@
  */
 
 import path from "path";
-import { fileURLToPath, pathToFileURL } from "url";
+import { pathToFileURL } from "url";
+import { fileURLToPath } from "url";
 
+// __dirname を ESMで再定義
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ 修正：2階層上の inuichiba-ffworkers を参照
+// GitHub Actions用パス（相対パス）
 const kvUtilsPath = path.join(__dirname, "../inuichiba-ffworkers/src/lib/kvUtils.js");
-console.log("📁 kvUtilsPath = ", kvUtilsPath); // ← 確認用ログ
+console.log("📁 kvUtilsPath =", kvUtilsPath);
 
 const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
-
-// ✅ file:// URL指定でインポート
 const { addMonthCount, checkKVSum } = await import(kvUtilsUrl);
 
 
+// ✅ 先に env を定義してから関数呼び出し
 const envName = process.argv[2] || "ffprod"; // デフォルトはffprod
 
 const env = {
@@ -44,4 +45,5 @@ const env = {
     : process.env.USERS_KV_NAMESPACE_ID_FFDEV,
 };
 
+// ✅ env を使うのは定義のあと！
 await checkKVSum(env);
