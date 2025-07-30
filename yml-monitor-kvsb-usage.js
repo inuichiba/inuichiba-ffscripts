@@ -22,17 +22,16 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// GitHub Actions用パス（相対パス）
-const kvUtilsPath = path.join(__dirname, "../inuichiba-ffworkers/src/lib/kvUtils.js");
+// ✅ kvUtils.js のコピー先（ffscripts配下）
+const kvUtilsPath = path.join(__dirname, "./kvUtils.js");
 console.log("📁 kvUtilsPath =", kvUtilsPath);
 
+// ESMとしてインポート
 const kvUtilsUrl = pathToFileURL(kvUtilsPath).href;
 const { addMonthCount, checkKVSum } = await import(kvUtilsUrl);
 
-
-// ✅ 先に env を定義してから関数呼び出し
-const envName = process.argv[2] || "ffprod"; // デフォルトはffprod
-
+// 引数から環境を取得（デフォルト: ffprod）
+const envName = process.argv[2] || "ffprod";
 const env = {
   isProd: envName === "ffprod",
   DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
@@ -45,5 +44,5 @@ const env = {
     : process.env.USERS_KV_NAMESPACE_ID_FFDEV,
 };
 
-// ✅ env を使うのは定義のあと！
+// ✅ env を使うのは定義のあと！KVの合計チェック実行
 await checkKVSum(env);
