@@ -131,10 +131,10 @@ for (const file of files) {
   // 🎨 画質・圧縮オプションの設定（mode と 拡張子によって分岐）
   baseSharp
   // ★重要：コメント消さない！画像のファイルサイズを合わせるときに使うと良い
-	//.resize({ width: 1200, withoutEnlargement: true })             // ★重要：横幅を強制的に制限（1920→1200などLINEに使いやすい幅）
-    .resize({ fit: "inside", withoutEnlargement: true })           // 原寸以下でリサイズ（オーバー時無拡大）
+	  .resize({ width: 1200, withoutEnlargement: true })             // ★重要：横幅を強制的に制限（1920→1200などLINEに使いやすい幅）
+  //.resize({ fit: "inside", withoutEnlargement: true })           // 原寸以下でリサイズ（オーバー時無拡大）
     .jpeg({
-      quality: mode === "detail" ? 90 : isPng ? 75 : 65,            // detailなら高画質、pngは安全重視、jpgは冒険圧縮
+      quality: mode === "detail" ? 90 : isPng ? 50 : 65,            // detailなら高画質、pngは安全重視、jpgは冒険圧縮
       progressive: false,                                           // Baseline JPEG に限定（LINE互換）
       optimizeCoding: true,                                         // JPEGコーディング最適化
       chromaSubsampling: mode === "detail" ? "4:4:4" : isPng ? "4:4:4" : "4:2:0", // 色差サブサンプリング設定
