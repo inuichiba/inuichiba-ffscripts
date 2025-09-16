@@ -35,7 +35,7 @@ jobs:
             # 想定外エラー時の緊急Discord通知（HTTP失敗ルートに入る前でも飛ぶ）
             local now msg
             now=$(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S')
-            msg="❌ 想定外のエラーで中断（$now JST）\n- 行: $LINENO\n- コマンド: ${BASH_COMMAND}\n- 以降のHTTP判定は未実施（構文/環境エラー等）"
+            msg="❌ 想定外のエラーで中断（$now JST）\n- 行: $LINENO\n- コマンド: ${BASH_COMMAND}\n- 実行ログ: ${run_url}"
             # 失敗してもジョブの終了はそのまま（|| true）
             curl -s -X POST -H "Content-Type: application/json" \
                  -d "{\"content\":\"$msg\"}" \
