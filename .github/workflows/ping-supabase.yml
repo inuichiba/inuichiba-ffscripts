@@ -24,76 +24,46 @@ jobs:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
     steps:
-- name: 📡 Ping tables (serial with diagnostics + summary)
-  run: |
-    set -euo pipefail
-    set -x
+      - name: 📡 Ping tables (serial with diagnostics + summary)
+        run: |
+          set -euo pipefail
+          set -x
 
-    start_ts=$(date +%s)  # 全体の計測開始（UTC）
-    failures=""
+          start_ts=$(date +%s)  # 全体の計測開始
+          failures=""
 
-    # Markdown ヘッダ（Step Summary）
-    {
-      echo "## Supabase ping 結果（隔日）"
-      echo ""
-      echo "- 実行時刻（JST）: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S')"
-      echo ""
-      echo "| テーブル | HTTP | DNS(resolve) | TCP(connect) | TTFB(starttx) | Total |"
-      echo "|---|---:|---:|---:|---:|---:|"
-    } >> "$GITHUB_STEP_SUMMARY"
+          # Step Summary ヘッダ
+          {
+            echo "## Supabase ping 結果（隔日）"
+            echo ""
+            echo "- 実行時刻（JST）: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S')"
+            echo ""
+            echo "| テーブル | HTTP | DNS(resolve) | TCP(connect) | TTFB(starttx) | Total |"
+            echo "|---|---:|---:|---:|---:|---:|"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-    # 実行（直列）
-    for table in users_ffprod users_ffprod_archived users_ffdev; do
-      echo ""
-      echo "🔶 $table を ping 中..."
+          # 各テーブルを順番にPing
+          for table in users_ffprod users_ffprod_archived users_ffdev; do
+            echo ""
+            echo "🔸 $table を ping 中..."
 
-      fmt='code=%{http_code} resolve=%{time_namelookup}s connect=%{time_connect}s starttx=%{time_starttransfer}s total=%{time_total}s'
+            fmt='code=%{http_code} resolve=%{time_namelookup}s connect=%{time_connect}s starttx=%{time_starttransfer}s total=%{time_total}s'
 
-      # 軽いジッター（Runner側の一時詰まり回避のため 0〜2秒）
-      sleep $((RANDOM % 3))
+            # 軽いジッター（0〜2秒）
+            sleep $((RANDOM % 3))
 
-      out=$(curl --connect-timeout 10 --max-time 60 \
-        --retry 2 --retry-delay 2 --retry-connrefused \
-        -L -s -o /dev/null -w "$fmt" \
-        -H "apikey: $SUPABASE_KEY" \
-        -H "Authorization: Bearer $SUPABASE_KEY" \
-        "$SUPABASE_URL/rest/v1/$table?select=*&limit=1")
+            out=$(curl --connect-timeout 10 --max-time 60 \
+              --retry 2 --retry-delay 2 --retry-connrefused \
+              -L -s -o /dev/null -w "$fmt" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              "$SUPABASE_URL/rest/v1/$table?select=*&limit=1")
 
-      echo "[$table] $out"
+            echo "[$table] $out"
 
-      # 値の取り出し
-      code=$(echo "$out" | sed -n 's/.*code=\([0-9][0-9][0-9]\).*/\1/p')
-      resolve=$(echo "$out" | sed -n 's/.*resolve=\([0-9.]*s\).*/\1/p')
-      connect=$(echo "$out" | sed -n 's/.*connect=\([0-9.]*s\).*/\1/p')
-      starttx=$(echo "$out" | sed -n 's/.*starttx=\([0-9.]*s\).*/\1/p')
-      total=$(echo "$out" | sed -n 's/.*total=\([0-9.]*s\).*/\1/p')
-
-      # Step Summary（行の追加）
-      printf '| %s | %s | %s | %s | %s | %s |\n' "$table" "$code" "$resolve" "$connect" "$starttx" "$total" >> "$GITHUB_STEP_SUMMARY"
-
-      # 失敗リスト
-      if [ "$code" != "200" ]; then
-        failures="${failures}- ${table} → $code\n"
-      fi
-    done
-
-    # 合計時間
-    end_ts=$(date +%s)
-    elapsed=$((end_ts - start_ts))
-    echo "" >> "$GITHUB_STEP_SUMMARY"
-    echo "**合計所要時間**: ${elapsed}s" >> "$GITHUB_STEP_SUMMARY"
-
-    # 終了処理
-    if [ -n "$failures" ]; then
-      now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
-      payload="⚠️ Supabase ping失敗（$now JST）\n$failures"
-      curl -s -X POST -H "Content-Type: application/json" \
-           -d "{\"content\":\"$payload\"}" \
-           "$DISCORD_WEBHOOK_URL" || true
-      exit 1
-    fi
-
-    # 成功メッセージ（ログ & Step Summary）
-    echo "✅ すべてのテーブルに正常にアクセスできました。"
-    echo "" >> "$GITHUB_STEP_SUMMARY"
-    echo "✅ すべてのテーブルに正常にアクセスできました。" >> "$GITHUB_STEP_SUMMARY"
+            # 値を取り出し
+            code=$(echo "$out" | sed -n 's/.*code=\([0-9][0-9][0-9]\).*/\1/p')
+            resolve=$(echo "$out" | sed -n 's/.*resolve=\([0-9.]*s\).*/\1/p')
+            connect=$(echo "$out" | sed -n 's/.*connect=\([0-9.]*s\).*/\1/p')
+            starttx=$(echo "$out" | sed -n 's/.*starttx=\([0-9.]*s\).*/\1/p')
+            total=$(echo "$out" | s
