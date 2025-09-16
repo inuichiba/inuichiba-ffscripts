@@ -56,7 +56,12 @@ jobs:
               -L -s -o /dev/null -w "$fmt" \
               -H "apikey: $SUPABASE_KEY" \
               -H "Authorization: Bearer $SUPABASE_KEY" \
-              "$SUPABASE_URL/rest/v1/$table?select=*&limit=1")
+              "$SUPABASE_URL/rest/v1/$table?select=*&limit=1") || rc=$?
+
+            if [ $rc -ne 0 ] || [ -z "$out" ]; then
+              # curl 自体が失敗した場合のダミー行
+              out='code=000 resolve=?s connect=?s starttx=?s total=?s'
+            fi
 
             echo "[$table] $out"
 
