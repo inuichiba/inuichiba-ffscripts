@@ -1,59 +1,67 @@
-name: 🔁 Supabase user-tables Ping (every other day)
+name: 🔁 upabase user-tables Ping (every other day)
 # エラーがあったときだけGitHubからメール通知があるとともにDiscordに通知されます。
-# ✅ 通知先はDiscordに変更済（直接送信）
 # GitHub Secrets: DISCORD_WEBHOOK_URL を使用
 # Cloudflare Workers経由の通知は廃止し、無料枠のリクエスト消費を完全にゼロに抑えています。
 # Cloudflare Workers経由に戻すなら、secrets：WORKERS_NOTIFY_URL にすればいいです(ただし課金枠に入ります)。
 
 on:
   schedule:
-    - cron: '5 3 */2 * *'  # UTC 03:05 = JST 12:05、隔日実行
-  workflow_dispatch:       # 手動実行も可
+    - cron: '5 3 */2 * *'   # 隔日（UTC 03:05 = JST 12:05）
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-ping
+  cancel-in-progress: true
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
+
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}  # Cloudflare対応はWORKERS_NOTIFY_URL
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
     steps:
-      - name: 🔁 Ping Supabase tables
+      - name: 📡 Ping tables (serial with diagnostics)
         run: |
+          set -euo pipefail
           set -x
-          echo "🔁 Supabase 複数テーブルの ping を開始します...($(date '+%Y-%m-%d %H:%M:%S'))"
-
-          now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
 
           failures=""
-          for table in users_ffprod users_ffprod_archived users_ffdev users_prod; do
+          for table in users_ffprod users_ffprod_archived users_ffdev; do
             echo ""
             echo "🔸 $table を ping 中..."
 
-            status=$(curl -L -s -o /dev/null -w "%{http_code}" \
+            # タイミング計測フォーマット
+            fmt='code=%{http_code} resolve=%{time_namelookup}s connect=%{time_connect}s starttx=%{time_starttransfer}s total=%{time_total}s'
+
+            # 軽いジッターでRunner側の一時詰まり回避（0〜2秒）
+            sleep $((RANDOM % 3))
+
+            out=$(curl --connect-timeout 10 --max-time 60 \
+              --retry 2 --retry-delay 2 --retry-connrefused \
+              -L -s -o /dev/null -w "$fmt" \
               -H "apikey: $SUPABASE_KEY" \
               -H "Authorization: Bearer $SUPABASE_KEY" \
               "$SUPABASE_URL/rest/v1/$table?select=*&limit=1")
 
-            echo "✅ [$table] → ステータスコード: $status"
+            echo "[$table] $out"
 
-            if [ "$status" != "200" ]; then
-              echo "⚠️ [$table] はステータス200ではありません！"
-              failures="${failures}- ${table} → $status\\n"
+            code=$(echo "$out" | sed -n 's/.*code=\([0-9][0-9][0-9]\).*/\1/p')
+            if [ "$code" != "200" ]; then
+              failures="${failures}- ${table} → $code\n"
             fi
           done
 
-
-          # 失敗があったら通知してexit 1(異常終了→GitHubが自動でメール通知)
-          [ -n "$failures" ] && {
+          if [ -n "$failures" ]; then
             now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
-            payload="⚠️ Supabase ping失敗（$now JST）\\n$failures"
+            payload="⚠️ Supabase ping失敗（$now JST）\n$failures"
             curl -s -X POST -H "Content-Type: application/json" \
                  -d "{\"content\":\"$payload\"}" \
-                 "$DISCORD_WEBHOOK_URL"
+                 "$DISCORD_WEBHOOK_URL" || true
             exit 1
-          }
+          fi
 
-          echo "✅ すべてのテーブルに正常にアクセスできました。"
-          exit 0
+          echo "✅ all ok"
