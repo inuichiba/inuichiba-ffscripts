@@ -34,7 +34,7 @@ jobs:
             status=$(curl -L -s -o /dev/null -w "%{http_code}" \
               -H "apikey: $SUPABASE_KEY" \
               -H "Authorization: Bearer $SUPABASE_KEY" \
-              "$SUPABASE_URL/rest/v1/$table?select=id&limit=1")
+              "$SUPABASE_URL/rest/v1/$table?select=*&limit=1")
 
             echo "✅ [$table] → ステータスコード: $status"
 
