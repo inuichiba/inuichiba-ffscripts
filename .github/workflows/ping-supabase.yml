@@ -1,4 +1,4 @@
-name: 🔁 upabase user-tables Ping (every other day)
+name: 🔁 Supabase user-tables Ping (every other day)
 # エラーがあったときだけGitHubからメール通知があるとともにDiscordに通知されます。
 # ✅ 通知先はDiscordに変更済（直接送信）
 # GitHub Secrets: DISCORD_WEBHOOK_URL を使用
