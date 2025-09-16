@@ -25,6 +25,7 @@ jobs:
 
     steps:
       - name: 📡 Ping tables (serial with diagnostics + summary)
+        shell: bash   # ← 明示的に bash を使う
         run: |
           set -euo pipefail
           set -x
@@ -33,14 +34,12 @@ jobs:
           failures=""
 
           # Step Summary ヘッダ
-          {
-            echo "## Supabase ping 結果（隔日）"
-            echo ""
-            echo "- 実行時刻（JST）: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S')"
-            echo ""
-            echo "| テーブル | HTTP | DNS(resolve) | TCP(connect) | TTFB(starttx) | Total |"
-            echo "|---|---:|---:|---:|---:|---:|"
-          } >> "$GITHUB_STEP_SUMMARY"
+          echo "## Supabase ping 結果（隔日）" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- 実行時刻（JST）: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M:%S')" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| テーブル | HTTP | DNS(resolve) | TCP(connect) | TTFB(starttx) | Total |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---:|---:|---:|---:|---:|" >> "$GITHUB_STEP_SUMMARY"
 
           # 各テーブルを順番にPing
           for table in users_ffprod users_ffprod_archived users_ffdev; do
@@ -49,8 +48,8 @@ jobs:
 
             fmt='code=%{http_code} resolve=%{time_namelookup}s connect=%{time_connect}s starttx=%{time_starttransfer}s total=%{time_total}s'
 
-            # 軽いジッター（0〜2秒）
-            sleep $((RANDOM % 3))
+            # 軽いジッター（固定1秒：bash/環境差を避ける）
+            sleep 1
 
             out=$(curl --connect-timeout 10 --max-time 60 \
               --retry 2 --retry-delay 2 --retry-connrefused \
@@ -66,4 +65,34 @@ jobs:
             resolve=$(echo "$out" | sed -n 's/.*resolve=\([0-9.]*s\).*/\1/p')
             connect=$(echo "$out" | sed -n 's/.*connect=\([0-9.]*s\).*/\1/p')
             starttx=$(echo "$out" | sed -n 's/.*starttx=\([0-9.]*s\).*/\1/p')
-            total=$(echo "$out" | s
+            total=$(echo "$out" | sed -n 's/.*total=\([0-9.]*s\).*/\1/p')
+
+            # Step Summary に行追加
+            printf '| %s | %s | %s | %s | %s | %s |\n' "$table" "$code" "$resolve" "$connect" "$starttx" "$total" >> "$GITHUB_STEP_SUMMARY"
+
+            # 失敗リスト
+            if [ "$code" != "200" ]; then
+              failures="${failures}- ${table} → $code\n"
+            fi
+          done
+
+          # 合計時間
+          end_ts=$(date +%s)
+          elapsed=$((end_ts - start_ts))
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**合計所要時間**: ${elapsed}s" >> "$GITHUB_STEP_SUMMARY"
+
+          # 終了処理
+          if [ -n "$failures" ]; then
+            now=$(TZ=Asia/Tokyo date "+%Y-%m-%d %H:%M:%S")
+            payload="⚠️ Supabase ping失敗（$now JST）\n$failures"
+            curl -s -X POST -H "Content-Type: application/json" \
+                 -d "{\"content\":\"$payload\"}" \
+                 "$DISCORD_WEBHOOK_URL" || true
+            exit 1
+          fi
+
+          # 成功メッセージ
+          echo "✅ すべてのテーブルに正常にアクセスできました。"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ すべてのテーブルに正常にアクセスできました。" >> "$GITHUB_STEP_SUMMARY"
