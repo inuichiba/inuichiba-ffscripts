@@ -3,6 +3,8 @@ name: 🔁 upabase user-tables Ping (every other day)
 # GitHub Secrets: DISCORD_WEBHOOK_URL を使用
 # Cloudflare Workers経由の通知は廃止し、無料枠のリクエスト消費を完全にゼロに抑えています。
 # Cloudflare Workers経由に戻すなら、secrets：WORKERS_NOTIFY_URL にすればいいです(ただし課金枠に入ります)。
+# 60日以内に更新しないと GitHub から削除されます。十分気を付けてください。
+
 
 on:
   schedule:
