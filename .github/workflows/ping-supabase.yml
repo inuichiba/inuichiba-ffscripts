@@ -1,9 +1,12 @@
-name: 🔁 upabase user-tables Ping (every other day)
-# エラーがあったときだけGitHubからメール通知があるとともにDiscordに通知されます。
+name: 🔁 Supabase user-tables Ping (every other day)
+# エラーがあったときだけGitHubからメール通知があるとともにDiscordにも通知されます。
 # GitHub Secrets: DISCORD_WEBHOOK_URL を使用
 # Cloudflare Workers経由の通知は廃止し、課金枠のリクエスト消費を完全にゼロに抑えています。
-# Cloudflare Workers経由に戻すなら、secrets：WORKERS_NOTIFY_URL にすればいいです(ただし課金枠に入ります)。
-# なお、60日以内に更新しないと GitHub から削除されます。十分気を付けてください。
+# Cloudflare Workers経由に戻すなら、secrets：WORKERS_NOTIFY_URL にすればいいです
+# (ただし課金枠に入ります)。
+# なお、60日間 cron で運用し続けて実行していなかったら GitHubから停止警告メールが来ます。
+# そのときはこのファイルを更新して push 後、GitHub Actions から一度手動実行してください。
+# そうしないと GitHub から cron もろとも停止されます。十分気を付けてください。
 
 
 on:
