@@ -1,4 +1,5 @@
 name: 🔁 Supabase user-tables Ping (every other day)
+# 更新日時：2026/07/03
 # エラーがあったときだけGitHubからメール通知があるとともにDiscordにも通知されます。
 # GitHub Secrets: DISCORD_WEBHOOK_URL を使用。
 # Cloudflare Workers経由の通知は廃止し、課金枠のリクエスト消費を完全にゼロに抑えています。
